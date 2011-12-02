@@ -9,6 +9,7 @@
 		<script src="js/data.js"></script> 
 		<script src="js/fb.js"></script> 
 		<script src="js/ui.js"></script> 
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
 		
 
 	</head>
@@ -22,9 +23,28 @@
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
 		<h2>Teams</h2> 
 		<!--{{tmpl "#tmpl-team"}}-->
-			{{each teams}} 
-				<li>${name} - ${abbreviation}</li>
-			{{/each}}
+			<table class="teamlist">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>abbreviation</th>
+						<th>city</th>
+						<th>state</th>
+						<th>conference</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{each teams}} 
+						<tr>
+							<td>${name}</td>
+							<td>${abbreviation}</td>
+							<td>${city}</td>
+							<td>${state}</td>
+							<td>${conference}</td>
+						</tr>
+					{{/each}}
+				</tbody>
+			</table> 
 	</script> 
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
 	<!---team---> 
