@@ -23,19 +23,20 @@
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
 		<h2>Teams</h2> 
 		<!--{{tmpl "#tmpl-team"}}-->
-			<table class="teamlist">
-				<thead>
-					<tr>
-						<th>name</th>
-						<th>abbreviation</th>
-						<th>city</th>
-						<th>state</th>
-						<th>conference</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{each teams}} 
-						<tr>
+			<div id="tableContainer" class="tableContainer">
+				<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+					<thead class="fixedHeader">
+						<tr class="alternateRow">
+							<th>name</th>
+							<th>abbreviation</th>
+							<th>city</th>
+							<th>state</th>
+							<th>conference</th>
+						</tr>	
+					</thead>
+					<tbody class="scrollContent">
+						{{each teams}} 
+						<tr class="normalRow">
 							<td>${name}</td>
 							<td>${abbreviation}</td>
 							<td>${city}</td>
@@ -43,16 +44,38 @@
 							<td>${conference}</td>
 						</tr>
 					{{/each}}
-				</tbody>
-			</table> 
+					</tbody>
+				</table> 			
+			</div> 
 	</script> 
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
-	<!---team---> 
-	 <script type="text/x-jQuery-tmpl" id="tmpl-team">
-      	<div class="teams">
-    	      <h2>${name}</h2>
-    	 </div>
-    </script>
+	<!---people list---> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-players-list">
+		<h2>People</h2> 
+			<div id="tableContainer" class="tableContainer">
+				<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+					<thead class="fixedHeader">
+						<tr class="alternateRow">
+							<th>first name</th>
+							<th>last name</th>
+							<th>year born</th>
+							<th>team</th>
+						</tr>	
+					</thead>
+					<tbody class="scrollContent">
+						{{each players}} 
+						<tr class="normalRow">
+							<td>${firstName}</td>
+							<td>${lastName}</td>
+							<td>${birthYear}</td>
+							<td>${team}</td>
+						</tr>
+					{{/each}}
+					</tbody>
+				</table> 			
+			</div> 
+	</script> 
+
 	
 	<script type="text/javascript"> 
 		init(); 

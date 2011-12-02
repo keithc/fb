@@ -3,17 +3,19 @@ var _teams= [], _people=[];
 
 //init
 function init() {
-	//load people
-	loadPeople(); 
 	//load teams
 	loadTeams(); 
+
+	//load people
+	loadPeople(); 
+
 	$.publish (fbEvents.INIT_COMPLETE);
 
 }
 
 // ----- people 
 function loadPeople() {
-	var player1 = new Player("Joe", "Smith", "1/1/1995", "LSU") 
+	var player1 = new Player("Joe", "Smith", "1/1/1995",  "LSU") 
 	_people.push(player1); 
 }
 
@@ -21,6 +23,7 @@ function loadPeople() {
 //player object (factory) 
 var Player = (function() {
    var Player= function (firstName, lastName, birthYear, team){
+   //singleton id? 
        this.firstName = firstName;
        this.lastName   = lastName; 
        this.birthYear = birthYear; 
@@ -40,6 +43,45 @@ function loadTeams() {
 	_teams.push(team1); 
 	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
 	_teams.push(team1); 
+	
+	team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+
 }
 
 

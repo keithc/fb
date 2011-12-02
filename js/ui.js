@@ -2,18 +2,31 @@
 $.subscribe(fbEvents.INIT_COMPLETE, function ()
 		{
 			//_renderNavigation();
+			clearScreen(); 
 			renderTeams(_teams);  //teams should be in the data tier
+			renderPlayers(_people); 
 		});
 
+function clearScreen(){
+	$("#mainPane").empty();  
+}
+		
 function renderTeams(data) { 
 	if (data)
 	{
-		$("#mainPane").empty();  
+		
 		//if not data, error
 		$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
 		//$("#tmpl-team").tmpl(data).appendTo("#mainPane");   
 		//$("#team-container").empty();
 		//$.tmpl("#tmpl-team",data).appendTo("#mainPane");   
+	}
+}
+
+function renderPlayers(data) { 
+	if (data)
+	{
+		$("#tmpl-players-list").tmpl({players: data}).appendTo("#mainPane"); 
 	}
 }
 		
