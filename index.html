@@ -21,32 +21,29 @@
 	<!-- Templates -->
 	<!---teams list---> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
-		<h2>Teams</h2> 
-		<!--{{tmpl "#tmpl-team"}}-->
-			<div id="tableContainer" class="tableContainer">
-				<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
-					<thead class="fixedHeader">
-						<tr class="alternateRow">
-							<th>name</th>
-							<th>abbreviation</th>
-							<th>city</th>
-							<th>state</th>
-							<th>conference</th>
-						</tr>	
-					</thead>
-					<tbody class="scrollContent">
-						{{each teams}} 
-						<tr class="normalRow">
-							<td>${name}</td>
-							<td>${abbreviation}</td>
-							<td>${city}</td>
-							<td>${state}</td>
-							<td>${conference}</td>
-						</tr>
-					{{/each}}
-					</tbody>
-				</table> 			
-			</div> 
+	<h2>Teams</h2> 
+	<div id="tableContainer" class="tableContainer">
+		<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+			<thead class="fixedHeader">
+				<tr class="alternateRow">
+					<th>name</th>
+					<th>abbreviation</th>
+					<th>location</th>
+					<th>conference</th>
+				</tr>	
+			</thead>
+			<tbody class="scrollContent"> 
+				{{each teams}}
+					<tr class="normalRow">
+						<td>${name}</td>
+						<td>${abbreviation}</td>
+						<td>${city}, ${state}</td>
+						<td>${conference}</td>
+					</tr>
+				{{/each}}
+			</tbody>
+		</table> 
+		</div>
 	</script> 
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
 	<!---people list---> 

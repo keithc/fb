@@ -2,7 +2,7 @@
 $.subscribe(fbEvents.INIT_COMPLETE, function ()
 		{
 			//_renderNavigation();
-			clearScreen(); 
+		//	clearScreen(); 
 			renderTeams(_teams);  //teams should be in the data tier
 			renderPlayers(_people); 
 		});
@@ -16,7 +16,9 @@ function renderTeams(data) {
 	{
 		
 		//if not data, error
-		$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
+		$("#mainPane").empty();  
+			$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
+	//	$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#pane2"); 
 		//$("#tmpl-team").tmpl(data).appendTo("#mainPane");   
 		//$("#team-container").empty();
 		//$.tmpl("#tmpl-team",data).appendTo("#mainPane");   

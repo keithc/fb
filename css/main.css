@@ -28,6 +28,7 @@ div.tableContainer {
     height: 285px;
     overflow: auto;
     width: 756px;
+	margin-bottom: 15px; 
 }
 html > body div.tableContainer {
     overflow: hidden;
