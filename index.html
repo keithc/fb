@@ -1,21 +1,45 @@
 <html>
 	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-		<!--<script src="js/Underscore.js"></script>
-		<script src="js/Backbone.js"></script>
-		<script src="js/backbone.localStorage-min.js"></script>-->
 		<script src="js/pubsub.js"></script> 
 		<script src="js/jquery.tmpl.js"></script> 
 		<script src="js/data.js"></script> 
 		<script src="js/fb.js"></script> 
 		<script src="js/ui.js"></script> 
 		<link rel="stylesheet" type="text/css" href="css/main.css" />
-		
-
+		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
 	</head>
 <body>
 	<!-- menu  include - point to views--> 
-
+<div id="nav"> 
+	<ul id="menu">
+	  <li><a href="">Home</a></li>
+	  <li><a href="">Data</a>
+		<ul>
+		<li><a href="">Teams</a></li>
+		<li><a href="">Players</a></li>
+		<li><a href="">Conferences</a></li>
+		</ul>
+	  </li>
+	  <li><a href="">Products</a>
+		<ul>
+		<li><a href="">Cozy Couch</a></li>
+		<li><a href="">Great Table</a></li>
+		<li><a href="">Small Chair</a></li>
+		<li><a href="">Shiny Shelf</a></li>
+		<li><a href="">Invisible Nothing</a></li>
+		</ul>
+	  </li>
+	  <li><a href="">Contact</a>
+		<ul>
+		<li><a href="">Online</a></li>
+		<li><a href="">Right Here</a></li>
+		<li><a href="">Somewhere Else</a></li>
+		</ul>
+	  </li>
+	</ul>
+</div> 
+		</br>
 	<div id="mainPane"></div>
 	
 	<!-- Templates -->
@@ -65,7 +89,7 @@
 							<td>${firstName}</td>
 							<td>${lastName}</td>
 							<td>${birthYear}</td>
-							<td>${team}</td>
+							<td><a href="#" data-uitype="link-to-team">${team}</a></td>
 						</tr>
 					{{/each}}
 					</tbody>

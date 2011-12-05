@@ -37,7 +37,8 @@ jQuery.fbData = (function ($)
 
 var fbEvents =
 {
-	INIT_COMPLETE: "fbInitComplete"
+	INIT_COMPLETE: "fbInitComplete",
+	DATA_LOAD_COMPLETE: "fbDataLoadComplete"
 };
 
 var fbTemplates = 

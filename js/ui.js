@@ -1,27 +1,26 @@
 //ui events here
 $.subscribe(fbEvents.INIT_COMPLETE, function ()
 		{
-			//_renderNavigation();
-		//	clearScreen(); 
+			clearScreen(); 
 			renderTeams(_teams);  //teams should be in the data tier
 			renderPlayers(_people); 
+			$.publish(fbEvents.DATA_LOAD_COMPLETE); 
+			_bindEvents(); 
 		});
 
 function clearScreen(){
 	$("#mainPane").empty();  
 }
-		
+
+
 function renderTeams(data) { 
 	if (data)
 	{
 		
 		//if not data, error
-		$("#mainPane").empty();  
-			$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
-	//	$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#pane2"); 
-		//$("#tmpl-team").tmpl(data).appendTo("#mainPane");   
-		//$("#team-container").empty();
-		//$.tmpl("#tmpl-team",data).appendTo("#mainPane");   
+		//$("#mainPane").empty();  
+		$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
+
 	}
 }
 
@@ -32,7 +31,6 @@ function renderPlayers(data) {
 	}
 }
 		
-//ui rendering		
-function listData(obj, tmpl) {
-
+function _bindEvents(){
+	
 }

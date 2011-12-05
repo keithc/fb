@@ -22,6 +22,11 @@ h3 {
     font: 13px Verdana,Geneva,Arial,Helvetica,sans-serif;
     margin: 0 0 15px;
 }
+
+#mainPane{
+	margin-top:20px;
+}
+
 div.tableContainer {
     border: 1px solid #996633;
     clear: both;
