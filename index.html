@@ -43,7 +43,7 @@
 	<div id="mainPane"></div>
 	
 	<!-- Templates -->
-	<!---teams list---> 
+	<!---***********  teams list  *****************--> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
 	<h2>Teams</h2> 
 	<div id="tableContainer" class="tableContainer">
@@ -59,20 +59,42 @@
 			<tbody class="scrollContent"> 
 				{{each teams}}
 					<tr class="normalRow">
-						<td>${name}</td>
+						<td>${name} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="player">Roster</a></td>
 						<td>${abbreviation}</td>
 						<td>${city}, ${state}</td>
-						<td>${conference}</td>
+						<td><a href="#" data-uitype="link-to-item" data-item-id="${conference}" data-item-type="conference"> ${conference}</a></td>
 					</tr>
 				{{/each}}
 			</tbody>
 		</table> 
 		</div>
 	</script> 
+	
+	<!---***********  individual team  *****************--> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-team-detail">
+	<h2>Team: ${name}</h2> 
+		<div id="tableContainer" class="tableContainer">
+			${abbreviation} - ${city}, ${state} -- ${conference}
+		</div>
+	</script> 
+	
+	<!---***********  individual conference  *****************--> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-conference-detail">
+	<h2>Conference: ${name}</h2> 
+		<div id="tableContainer" class="tableContainer">
+			${abbreviation} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="team">Teams</a> 
+		</div>
+	</script> 
+	
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
 	<!---people list---> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-players-list">
-		<h2>People</h2> 
+		{{if team}}
+		<h2>Roster - ${team}</h2>
+		{{else}}
+		<h2>Players</h2>	
+		{{/if}}
+				
 			<div id="tableContainer" class="tableContainer">
 				<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
 					<thead class="fixedHeader">
@@ -89,7 +111,7 @@
 							<td>${firstName}</td>
 							<td>${lastName}</td>
 							<td>${birthYear}</td>
-							<td><a href="#" data-uitype="link-to-team">${team}</a></td>
+							<td><a href="#" data-uitype="link-to-item" data-item-id="${team}" data-item-type="team">${team}</a></td>
 						</tr>
 					{{/each}}
 					</tbody>
