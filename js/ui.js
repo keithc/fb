@@ -1,91 +1,122 @@
 //ui pub sub events here
 $.subscribe(fbEvents.INIT_COMPLETE, function ()
 		{
-			clearScreen(); 
+		
+			//clearScreen(); 
 			//show intro screen or something
-			listAllTeams(_teams);  //teams should be in the data tier
-			listAllPlayers(_people); 
+			//listAllTeams(_teams);  //teams should be in the data tier
+			//listAllPlayers(_people); 
+			bindEvents(); 
 			$.publish(fbEvents.DATA_LOAD_COMPLETE); 
 		});
 		
 		
 $.subscribe(fbEvents.DATA_LOAD_COMPLETE, function ()
 		{
-			bindEvents(); 
+			
 		});
-		
-
 		
 //ui functions here 
 function clearScreen(){
+	$("#menuPane").empty(); 
 	$("#mainPane").empty();  
 }
 
+function clearMainPane(){
+	$("#mainPane").empty(); 
+}
+
+
+/****************/
+/*! Team functions  */ 
 function listTeamsByConference(conference) 
 {
 	if (conference) 
 	{
+		var mainPane = $("#mainPane"); 
+		mainPane.empty(); 
+		
 		//filter teams by conference
 		function isInConference(element, index, array) { 
 			return (element.conference ===conference); 
 		}
 		var data = _teams.filter(isInConference); 
-		$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
+		$("#tmpl-teams-list").tmpl({teams: data}).appendTo(mainPane); 
 	}
 }
 
-function listAllTeams(data) { 
-	if (data)//if not data, error
-	{
-		$("#tmpl-teams-list").tmpl({teams: data}).appendTo("#mainPane"); 
-	}
+function listAllTeams() { 
+		var mainPane = $("#mainPane"); 
+		mainPane.empty(); 
+		$("#tmpl-teams-list").tmpl({teams: _teams}).appendTo(mainPane); 
 }
+
 //could have a displayItem function, and pass in template, array...
 function displayTeam(teamId){
-	clearScreen(); 
+	var mainPane = $("#mainPane"); 
+	mainPane.empty(); 
 	//if (_teams.contains(teamId)) 
 	//{alert("YES");}
 	var team = _teams.find(teamId); 
 	if (team) 
 	{
-		$("#tmpl-team-detail").tmpl(team).appendTo("#mainPane"); 
+		$("#tmpl-team-detail").tmpl(team).appendTo(mainPane); 
 	} //TODO: else, error handle
 
 }
 
+/*******************/
+/*! Conference functions */ 
 function displayConference(conferenceId){
-	clearScreen(); 
+	var mainPane = $("#mainPane"); 
+	mainPane.empty(); 
 	var conference = _conferences.find(conferenceId); 
 	if (conference) 
 	{
-		$("#tmpl-conference-detail").tmpl(conference).appendTo("#mainPane"); 
+		$("#tmpl-conference-detail").tmpl(conference).appendTo(mainPane); 
 	} //TODO: else, error handle
 
 }
 
+function listAllConferences() { 
+		var mainPane = $("#mainPane"); 
+		mainPane.empty(); 
+		$("#tmpl-conferences-list").tmpl({conferences: _conferences}).appendTo(mainPane); 
+}
+
+/****************/
+/*! Players functions */ 
 function listPlayersByTeam(team){
 	if (team) 
 	{
+		var mainPane = $("#mainPane"); 
+		mainPane.empty(); 
+		
 		//filter teams by conference
 		function isOnTeam(element, index, array) { 
 			return (element.team ===team); 
 		}
 		var data = _people.filter(isOnTeam); 
-		$("#tmpl-players-list").tmpl({team: team, players: data}).appendTo("#mainPane"); 
+		$("#tmpl-players-list").tmpl({team: team, players: data}).appendTo(mainPane); 
 	}
 }
 
-function listAllPlayers(data) { 
-	if (data)
-	{
-		$("#tmpl-players-list").tmpl({players: data}).appendTo("#mainPane"); 
+function listAllPlayers() { 
+		var mainPane = $("#mainPane"); 
+		mainPane.empty(); 
+		$("#tmpl-players-list").tmpl({players: _people}).appendTo(mainPane); 
+}
+
+function showMenu(templateId){
+	if (templateId){
+		$("#menuPane").empty(); 
+		$(templateId).tmpl().appendTo("#menuPane"); 
 	}
 }
 
 //ui event binding here 
 /*! bindEvents */ 		
 function bindEvents(){
-	//team links
 	$("body").delegate("[data-uitype='link-to-item']", "click", function(evt)  { 
 		evt.preventDefault(); 
 		var itemId = $(this).data("item-id"); 
@@ -111,16 +142,33 @@ function bindEvents(){
 		switch (itemType)
 		{
 			case "team" : 
-				listTeamsByConference(itemId); 
+				if (itemId) 
+					listTeamsByConference(itemId); 
+				else
+					listAllTeams(); 
 				break; 
+				
 			case "conference" :
-				listConferences(itemId); 
+				if (itemId)
+					displayConference(itemId); 
+				else
+					listAllConferences(); 
 				break; 
+				
 			case "player" : 
-				listPlayersByTeam(itemId); 
+				if (itemId) 
+					listPlayersByTeam(itemId); 
+				else
+					listAllPlayers(); 			
 				break; 
 		}
 		//modal, keep history, give 2 links (modal, new window)? 
+	}); 
+		
+	$("body").delegate("[data-uitype='menu']", "click", function(evt)  { 
+		evt.preventDefault(); 
+		var templateId = $(this).data("tmpl-id"); 
+		showMenu(templateId);
 	}); 
 	
 	

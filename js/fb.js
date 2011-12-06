@@ -12,6 +12,8 @@ function init() {
 	//load people
 	loadPeople(); 
 
+	//build schedules (history?) 
+	
 	$.publish (fbEvents.INIT_COMPLETE);
 
 }
@@ -22,17 +24,12 @@ function loadPeople() {
 	_people.push(player1); 
 }
 
-
-
-
 // ------- conferences
 function loadConferences() {
 	var conf1 = new Conference("SEC", "SEC"); 
 	_conferences.push(conf1); 
 	 conf1 = new Conference("PAC12", "PAC12"); 
 	_conferences.push(conf1); 
-	
-
 }
 
 // ------- teams

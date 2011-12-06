@@ -16,9 +16,9 @@
 	  <li><a href="">Home</a></li>
 	  <li><a href="">Data</a>
 		<ul>
-		<li><a href="">Teams</a></li>
-		<li><a href="">Players</a></li>
-		<li><a href="">Conferences</a></li>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-teams-menu">Teams</a></li>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-players-menu">Players</a></li>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-conferences-menu">Conferences</a></li>
 		</ul>
 	  </li>
 	  <li><a href="">Products</a>
@@ -39,10 +39,44 @@
 	  </li>
 	</ul>
 </div> 
-		</br>
+	</br>
+	<div id="menuPane"></div>
 	<div id="mainPane"></div>
 	
 	<!-- Templates -->
+	<!--- ****************** TEAMS MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-teams-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Teams</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="team">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Conference</a> 
+		</script> 
+	</div>
+	<!--- ****************** PLAYERS MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-players-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Players</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="player">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Team</a> 
+		</script> 
+	</div>
+	<!--- ****************** CONFERENCES MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-conferences-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Conferences</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="conference">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Team</a> 
+		</script> 
+	</div>
+	
+	
+	
 	<!---***********  teams list  *****************--> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
 	<h2>Teams</h2> 
@@ -86,8 +120,35 @@
 		</div>
 	</script> 
 	
+	<!---***********  conference list  *****************--> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-conferences-list">
+	<h2>Conferences</h2> 
+	<div id="tableContainer" class="tableContainer">
+		<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+			<thead class="fixedHeader">
+				<tr class="alternateRow">
+					<th>name</th>
+					<th>abbreviation</th>
+					<th>location</th>
+					<th>conference</th>
+				</tr>	
+			</thead>
+			<tbody class="scrollContent"> 
+				{{each conferences}}
+					<tr class="normalRow">
+						<td>${name} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="team">Teams</a></td>
+						<td>${abbreviation}</td>
+						<td></td>
+						<td></td>
+					</tr>
+				{{/each}}
+			</tbody>
+		</table> 
+		</div>
+	</script> 
+	
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
-	<!---people list---> 
+	<!---player list---> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-players-list">
 		{{if team}}
 		<h2>Roster - ${team}</h2>
