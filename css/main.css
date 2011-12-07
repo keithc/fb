@@ -30,7 +30,8 @@ h3 {
 div.tableContainer {
     border: 1px solid #996633;
     clear: both;
-    height: 285px;
+    height: auto; 
+	max-height:285px; 
     overflow: hidden;
 	margin-bottom: 15px; 
 	display:inline-block; 
@@ -91,7 +92,8 @@ thead.fixedHeader a:hover {
 }
 tbody.scrollContent {
     display: block;
-    height: 262px;
+	height:auto; 
+    max-height: 262px;
     overflow: auto;
     width: 100%;
 }
@@ -99,12 +101,14 @@ tbody.scrollContent td, tbody.scrollContent tr.normalRow td {
 	border-left: 1px solid #EEBB88;
     border-right: 1px solid #BB7744;
     border-top: 1px solid #EEBB88;
+	border-bottom: 1px solid #EEBB88;
     padding: 2px 15px 3px 15px;
 }
 tbody.scrollContent tr.alternateRow td {
 	border-left: 1px solid #EEBB88;
     border-right: 1px solid #BB7744;
     border-top: 1px solid #EEBB88;
+	border-bottom: 1px solid #EEBB88;
     padding: 2px 15px 3px 15px;
 }
 /*

@@ -17,8 +17,15 @@ function loadConferences() {
 function loadTeams() {
 	var team1 = new Team("LSU", "LSU", "Baton Rouge", "LA", "SEC"); 
 	_teams.push(team1); 
-	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
+	 team1 = new Team("Alabama", "ALA", "Tuscaloosa", "AL", "SEC"); 
 	_teams.push(team1); 
+	 team1 = new Team("Arkanasas", "ARK", "Little Rock", "AR", "SEC"); 
+	_teams.push(team1); 
+	 team1 = new Team("Colorado", "COL", "Boulder", "CO", "PAC12"); 
+	_teams.push(team1); 
+	 team1 = new Team("Southern California", "USC", "Los Angeles", "CA", "PAC12"); 
+	_teams.push(team1); 
+
 }
 
 // ------- seasons
