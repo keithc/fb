@@ -81,22 +81,22 @@
 	<script type="text/x-jQuery-tmpl" id="tmpl-teams-list">
 	<h2>Teams</h2> 
 	<div id="tableContainer" class="tableContainer">
-		<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+		<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
 			<thead class="fixedHeader">
 				<tr class="alternateRow">
 					<th>name</th>
-					<th>abbreviation</th>
+					<th class="narrow">abbreviation</th>
 					<th>location</th>
-					<th>conference</th>
+					<th  class="narrow">conference</th>
 				</tr>	
 			</thead>
 			<tbody class="scrollContent"> 
 				{{each teams}}
 					<tr class="normalRow">
-						<td>${name} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="player">Roster</a></td>
-						<td>${abbreviation}</td>
+						<td>${name} -  <a href="#" data-uitype="link-to-item" data-item-id="${name}" data-item-type="team">Details</a> | <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="player">Roster</a></td>
+						<td class="narrow">${abbreviation}</td>
 						<td>${city}, ${state}</td>
-						<td><a href="#" data-uitype="link-to-item" data-item-id="${conference}" data-item-type="conference"> ${conference}</a></td>
+						<td class="narrow"><a href="#" data-uitype="link-to-item" data-item-id="${conference}" data-item-type="conference"> ${conference}</a></td>
 					</tr>
 				{{/each}}
 			</tbody>
@@ -108,7 +108,7 @@
 	<script type="text/x-jQuery-tmpl" id="tmpl-team-detail">
 	<h2>Team: ${name}</h2> 
 		<div id="tableContainer" class="tableContainer">
-			${abbreviation} - ${city}, ${state} -- ${conference}
+			${abbreviation} - ${city}, ${state} -- <a href="#" data-uitype="link-to-item" data-item-id="${conference}" data-item-type="conference"> ${conference}</a>
 		</div>
 	</script> 
 	
@@ -124,22 +124,18 @@
 	<script type="text/x-jQuery-tmpl" id="tmpl-conferences-list">
 	<h2>Conferences</h2> 
 	<div id="tableContainer" class="tableContainer">
-		<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+		<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
 			<thead class="fixedHeader">
 				<tr class="alternateRow">
 					<th>name</th>
-					<th>abbreviation</th>
-					<th>location</th>
-					<th>conference</th>
+					<th class="narrow">abbreviation</th>
 				</tr>	
 			</thead>
 			<tbody class="scrollContent"> 
 				{{each conferences}}
 					<tr class="normalRow">
 						<td>${name} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="team">Teams</a></td>
-						<td>${abbreviation}</td>
-						<td></td>
-						<td></td>
+						<td class="narrow">${abbreviation}</td>
 					</tr>
 				{{/each}}
 			</tbody>
@@ -148,22 +144,24 @@
 	</script> 
 	
 	<!-- {{each(i, d) data}} [TR class={{if i%2==0}}even{{else}}odd{{/if}] [TD]${title} [/TD] [/TR]{{/each}-->
-	<!---player list---> 
+	<!---***********  player list  *****************--> 
 	<script type="text/x-jQuery-tmpl" id="tmpl-players-list">
-		{{if team}}
-		<h2>Roster - ${team}</h2>
+		{{if team == "ALL"}}
+			<h2>Players</h2>	
 		{{else}}
-		<h2>Players</h2>	
+			<h2>Roster - ${team}</h2>			
 		{{/if}}
 				
 			<div id="tableContainer" class="tableContainer">
-				<table border="0" cellpadding="0" cellspacing="0"  width="100%" class="scrolltable">
+				<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
 					<thead class="fixedHeader">
 						<tr class="alternateRow">
 							<th>first name</th>
 							<th>last name</th>
-							<th>year born</th>
-							<th>team</th>
+							<th class="narrow">year born</th>
+							{{if team =="ALL"}}
+								<th>team</th>
+							{{/if}}
 						</tr>	
 					</thead>
 					<tbody class="scrollContent">
@@ -171,8 +169,10 @@
 						<tr class="normalRow">
 							<td>${firstName}</td>
 							<td>${lastName}</td>
-							<td>${birthYear}</td>
+							<td class="narrow">${birthYear}</td>
+							 {{if team == "ALL"}}
 							<td><a href="#" data-uitype="link-to-item" data-item-id="${team}" data-item-type="team">${team}</a></td>
+							{{/if}}
 						</tr>
 					{{/each}}
 					</tbody>

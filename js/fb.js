@@ -1,22 +1,3 @@
-//globals
-var _teams= [], _people=[], _conferences=[];
-
-//init
-function init() {
-	//load conferences
-	loadConferences(); 
-	
-	//load teams
-	loadTeams(); 
-
-	//load people
-	loadPeople(); 
-
-	//build schedules (history?) 
-	
-	$.publish (fbEvents.INIT_COMPLETE);
-
-}
 
 // ----- people 
 function loadPeople() {
@@ -38,11 +19,17 @@ function loadTeams() {
 	_teams.push(team1); 
 	 team1 = new Team("Colorado", "CU", "Boulder", "CO", "PAC12"); 
 	_teams.push(team1); 
-	
-
 }
-// objects - go in a separate class
 
+// ------- seasons
+function loadSeasons() {
+	//todo: pull from history file
+	var season1 = new Season("2011"); 
+	_seasons.push(season1); 
+}
+
+
+// objects - put in a separate file
 //player object (factory) 
 var Player = (function() {
    var Player= function (firstName, lastName, birthYear, team){
@@ -83,6 +70,15 @@ var Conference = (function() {
    };
 })();
 
+var Season = (function() {
+   var Season= function (name){
+       this.name = name;
+   };
+   return function(name) {
+       return new Season(name);
+   };
+})();
+
 
 //helper utils - move somewhere else
 Array.prototype.contains = function (itemId){
@@ -106,32 +102,25 @@ Array.prototype.contains = function (itemId){
 	return null; 
 };
 
-if (!Array.prototype.filter)
-{
-	Array.prototype.filter = function (fun) 
-	{
-		 "use strict";  
-  
-		if (this === void 0 || this === null)  
-		  throw new TypeError();  
-	  
-		var t = Object(this);  
-		var len = t.length >>> 0;  
-		if (typeof fun !== "function")  
-		  throw new TypeError();  
-	  
-		var res = [];  
-		var thisp = arguments[1];  
-		for (var i = 0; i < len; i++)  
-		{  
-		  if (i in t)  
-		  {  
-			var val = t[i]; // in case fun mutates this  
-			if (fun.call(thisp, val, i, t))  
-			  res.push(val);  
-		  }  
-		}  
-    return res;  
-	}
-}
 
+//globals
+var _teams= [], _people=[], _conferences=[], _seasons=[];
+
+
+
+//init
+function init() {
+	//load conferences
+	loadConferences(); 
+	
+	//load teams
+	loadTeams(); 
+
+	//load people
+	loadPeople(); 
+
+	//build schedules (history?) 
+	
+	$.publish (fbEvents.INIT_COMPLETE);
+
+}

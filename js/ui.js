@@ -104,7 +104,7 @@ function listPlayersByTeam(team){
 function listAllPlayers() { 
 		var mainPane = $("#mainPane"); 
 		mainPane.empty(); 
-		$("#tmpl-players-list").tmpl({players: _people}).appendTo(mainPane); 
+		$("#tmpl-players-list").tmpl({ team:"ALL", players: _people}).appendTo(mainPane); //todo - how to check for team not being there in the tmpl? had to define it to avoid an error - this is supposed to work:  {{if typeo DATA_PROPERTY==="undefined"}}
 }
 
 function showMenu(templateId){
