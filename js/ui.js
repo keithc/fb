@@ -46,9 +46,10 @@ function listTeamsByConference(conference)
 }
 
 function listAllTeams() { 
-		var mainPane = $("#mainPane"); 
-		mainPane.empty(); 
-		$("#tmpl-teams-list").tmpl({teams: _teams}).appendTo(mainPane); 
+	ko.applyBindings(_teamsViewModel, document.getElementById('teamsContainer'));
+	//var mainPane = $("#mainPane"); 
+	//mainPane.empty(); 
+	//$("#tmpl-teams-list").tmpl({teams: _teams}).appendTo(mainPane); 
 }
 
 //could have a displayItem function, and pass in template, array...
@@ -79,9 +80,10 @@ function displayConference(conferenceId){
 }
 
 function listAllConferences() { 
-		var mainPane = $("#mainPane"); 
-		mainPane.empty(); 
-		$("#tmpl-conferences-list").tmpl({conferences: _conferences}).appendTo(mainPane); 
+	ko.applyBindings(_conferencesViewModel, document.getElementById('conferencesContainer'));
+		//var mainPane = $("#mainPane"); 
+		//mainPane.empty(); 
+		//$("#tmpl-conferences-list").tmpl({conferences: _conferences}).appendTo(mainPane); 
 }
 
 /****************/
@@ -102,10 +104,12 @@ function listPlayersByTeam(team){
 }
 
 function listAllPlayers() { 
-		var mainPane = $("#mainPane"); 
-		mainPane.empty(); 
-		$("#tmpl-players-list").tmpl({ team:"ALL", players: _people}).appendTo(mainPane); //todo - how to check for team not being there in the tmpl? had to define it to avoid an error - this is supposed to work:  {{if typeo DATA_PROPERTY==="undefined"}}
+	ko.applyBindings(_playersViewModel, document.getElementById('playersContainer')); 
+	//	var mainPane = $("#mainPane"); 
+	//	mainPane.empty(); 
+	//	$("#tmpl-players-list").tmpl({ team:"ALL", players: _people}).appendTo(mainPane); //todo - how to check for team not being there in the tmpl? had to define it to avoid an error - this is supposed to work:  {{if typeo DATA_PROPERTY==="undefined"}}
 }
+
 
 function showMenu(templateId){
 	if (templateId){

@@ -1,8 +1,17 @@
 
 // ----- people 
 function loadPeople() {
-	var player1 = new Player("Joe", "Smith", "1/1/1995",  "LSU") 
-	_people.push(player1); 
+	//todo: load from a file
+	var players = [
+		{firstName: "John", lastName: "Smith", birthYear:"1/1/1994", team: "LSU", classYear: "sophomore"}
+		{firstName: "Joe", lastName: "Stone", birthYear:"12/12/1994", team: "LSU", classYear: "freshman"}
+		{firstName: "Mike", lastName: "Rice", birthYear:"11/1/1993", team: "ALA", classYear: "junior"}
+		{firstName: "Steve", lastName: "Jones", birthYear:"7/1/1994", team: "ALA", classYear: "senior"}
+		{firstName: "Rick", lastName: "Evans", birthYear:"6/1/1994", team: "ARK", classYear: "sophomore"}
+	];
+
+	//var player1 = new Player("Joe", "Smith", "1/1/1995",  "LSU", "sophomore") 
+	//_people.push(player1); 
 }
 
 // ------- conferences
@@ -39,15 +48,16 @@ function loadSeasons() {
 // objects - put in a separate file
 //player object (factory) 
 var Player = (function() {
-   var Player= function (firstName, lastName, birthYear, team){
+   var Player= function (firstName, lastName, birthYear, team, classYear){
    //singleton id? 
        this.firstName = firstName;
        this.lastName   = lastName; 
        this.birthYear = birthYear; 
 	   this.team = team; 
+	   this.classYear = classYear; 
    };
-   return function (firstName, lastName, birthYear, team) {
-       return new Player(firstName, lastName, birthYear, team);
+   return function (firstName, lastName, birthYear, team, classYear) {
+       return new Player(firstName, lastName, birthYear, team, classYear);
    };
 })();
 //todo: should extend a person object
@@ -85,6 +95,28 @@ var Season = (function() {
        return new Season(name);
    };
 })();
+
+function peopleViewModel() {
+	this.players = ko.observableArray([]); 
+	this.addPlayer = function() {
+		this.players.push(new Player());
+	}
+	this.deletePlayer = function() {
+		alert("DELETE"); 
+	}
+	var self = this; 
+	$.get("/players", function(data) { 
+		var mappedPlayers = $.map(data, function(item) {
+			return new Player(item.firstName, item.lastName, item.birthYear, item.team, item.classYear, self)
+		});
+	}
+}
+
+
+
+
+
+
 
 
 //helper utils - move somewhere else

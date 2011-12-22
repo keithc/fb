@@ -1,0 +1,209 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+		<script src="js/pubsub.js"></script> 
+		<script src="js/jquery.tmpl.js"></script> 
+		<script src="js/data.js"></script> 
+		<script src="js/fbko.js"></script> 
+		<script src="js/ui.js"></script> 
+		<script src="js/knockout.2.0.0.js"></script> 
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
+	</head>
+<body>
+	<!-- menu  include - point to views--> 
+<div id="nav"> 
+	<ul id="menu">
+	  <li><a href="">Home</a></li>
+	  <li><a href="">Data</a>
+		<ul>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-teams-menu">Teams</a></li>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-players-menu">Players</a></li>
+		<li><a href="" data-uitype="menu" data-tmpl-id="#tmpl-conferences-menu">Conferences</a></li>
+		</ul>
+	  </li>
+	  <li><a href="">Products</a>
+		<ul>
+		<li><a href="">Cozy Couch</a></li>
+		<li><a href="">Great Table</a></li>
+		<li><a href="">Small Chair</a></li>
+		<li><a href="">Shiny Shelf</a></li>
+		<li><a href="">Invisible Nothing</a></li>
+		</ul>
+	  </li>
+	  <li><a href="">Contact</a>
+		<ul>
+		<li><a href="">Online</a></li>
+		<li><a href="">Right Here</a></li>
+		<li><a href="">Somewhere Else</a></li>
+		</ul>
+	  </li>
+	</ul>
+</div> 
+	</br>
+	<div id="menuPane"></div>
+	<div id="mainPane"></div>
+	
+	
+
+	
+	
+	
+	<!-- Templates -->
+	<!--- ****************** TEAMS MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-teams-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Teams</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="team">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Conference</a> 
+		</script> 
+	</div>
+	<!--- ****************** PLAYERS MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-players-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Players</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="player">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Team</a> 
+		</script> 
+	</div>
+	<!--- ****************** CONFERENCES MENU **************--->
+	<script type="text/x-jQuery-tmpl" id="tmpl-conferences-menu">
+	</BR>
+	<div id="menuContainer" class="menuContainer">
+		<h2>Conferences</h2> 
+		<a href="#" data-uitype="link-to-list" data-item-type="conference">List All</a> | 
+		<a href="#">Search</a> <!--form? --> | 
+		<a href="#">By Team</a> 
+		</script> 
+	</div>
+	
+	<!---***********  teams list KO *****************--> 
+	<div id="teamsContainer" class="containerBox"> <!---KO wants unique divs to use multiple viewModels on the same page. could just use the id on the script tag, but it's bound a line above to the header-->
+	<h2>Teams</h2>
+	<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
+		<thead class="fixedHeader">
+			<tr class="alternateRow">
+				<th>Name</th>
+				<th class="narrow">Abbreviation</th>
+				<th>Location</th>
+				<th class="narrow">Conference</th>
+			</tr>	
+		</thead>
+		 <tbody class="scrollContent" data-bind="template: { name: 'teamsTemplate', foreach: teams}, visible: teams().length > 0"></tbody>		
+	</table>
+	<script type="text/html" id="teamsTemplate">
+		<tr class="normalRow">
+			<td><span data-bind="text:name"></span></td>
+			<td class="narrow"><span data-bind="text:abbreviation"></span></td>
+			<td><span data-bind="text:location()"></span></td>
+			<td class="narrow"><a href="#" data-item-id="${conference}" data-bind="text:conference" data-uitype="link-to-item" data-item-type="conference"></span></td>
+		</tr>      
+	</script>
+	
+</div>
+	
+	<!---***********  individual team  *****************--> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-team-detail">
+	<h2>Team: ${name}</h2> 
+		<div id="tableContainer" class="tableContainer">
+			${abbreviation} - ${city}, ${state} -- <a href="#" data-uitype="link-to-item" data-item-id="${conference}" data-item-type="conference"> ${conference}</a>
+		</div>
+	</script> 
+	
+	<!---***********  individual conference  *****************--> 
+	<script type="text/x-jQuery-tmpl" id="tmpl-conference-detail">
+	<h2>Conference: ${name}</h2> 
+		<div id="tableContainer" class="tableContainer">
+			${abbreviation} - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="team">Teams</a> 
+		</div>
+	</script> 
+	
+	<!---***********  conference list KO  *****************--> 
+<div id="conferencesContainer" class="containerBox" data-bind="visible:conferences().length >0"> <!---KO wants unique divs to use multiple viewModels on the same page. could just use the id on the script tag, but it's bound a line above to the header-->
+	<h2>Conferences</h2> 
+	<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable" data-bind="visible:conferences().length >0">
+		<thead class="fixedHeader">
+			<tr class="alternateRow">
+				<th>Name</th>
+			</tr>
+		</thead>
+		 <tbody class="scrollContent" data-bind="template: { name: 'conferencesTemplate', foreach: conferences}, visible: conferences().length > 0"></tbody>		
+	</table>
+	<script type="text/html" id="conferencesTemplate">
+		<tr class="normalRow">
+			<td><span data-bind="text:abbreviation"></span> - <a href="#" data-uitype="link-to-list" data-item-id="${name}" data-item-type="team">Teams</a></td>
+		</tr>      
+	</script>
+	
+	<p>Add Conference:</p>
+	<form data-bind="submit: addConference">
+		<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
+			<tr>
+				<td><input data-bind="value: newName"></td>
+				<td class="narrow"><input data-bind="value: newAbbreviation"></td>
+				<td><button type="submit">Add</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+	
+
+<!--- ****************** Players list KO *************-->
+<div id="playersContainer" class="containerBox" data-bind="visible:players().length >0"> <!---KO wants unique divs to use multiple viewModels on the same page. could just use the id on the script tag, but it's bound a line above to the header-->
+	<h2>Players</h2> 
+	<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable" data-bind="visible:players().length >0">
+		<thead class="fixedHeader">
+			<tr class="alternateRow">
+				<th>first name</th>
+				<th>last name</th>
+				<th class="narrow">year born</th>
+				<th class="narrow">class</th>
+				<!--{{if team =="ALL"}}-->
+					<th class="narrow">team</th>
+				<!--{{/if}}-->
+			</tr>	
+		</thead>
+		 <tbody class="scrollContent" data-bind="template: { name: 'playersTemplate', foreach: players}, visible: players().length > 0"></tbody>		
+	</table>
+	<script type="text/html" id="playersTemplate">
+		<tr class="normalRow">
+			<td><span data-bind="text:firstName"></span></td>
+			<td><span data-bind="text:lastName"></span></td>
+			<td class="narrow"><span data-bind="text:birthYear"></span></td>
+			<td class="narrow"><span data-bind="text:classYear"></span></td>
+			<td class="narrow"><a href="#" data-item-id="${team}" data-bind="text:team" data-uitype="link-to-item" data-item-type="team"></span></td>
+		</tr>      
+	</script>
+	
+	<p>Add Player:</p>
+	<form data-bind="submit: addPlayer">
+		<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
+			<tr>
+				<td><input data-bind="value: newFirstName"></td>
+				<td><input data-bind="value: newLastName"></td>
+				<td class="narrow"><input data-bind="value: newBirthYear"></td>
+				<td class="narrow"><select data-bind="options: classYears, value:newClassYear, optionsText:'id'"></select></td>
+				<td class="narrow"><input data-bind="value: newTeam"></td>
+				<td><button type="submit">Add</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+	
+	
+	<script type="text/javascript"> 
+		init(); 
+	</script> 
+	
+	  
+ 	
+
+
+</body>
+</html>

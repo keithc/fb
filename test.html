@@ -1,0 +1,102 @@
+	<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+		<script src="js/pubsub.js"></script> 
+		<script src="js/jquery.tmpl.js"></script> 
+		<script src="js/data.js"></script> 
+		\
+		<script src="js/ui.js"></script> 
+		<script src="js/knockout.1.1.2.js"></script> 
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
+	</head>
+<body>
+
+
+<!--- ****************** Players list KO *************-->
+<div id="playersContainer" class="containerBox" data-bind="visible:players().length >0"> <!---KO wants unique divs to use multiple viewModels on the same page. could just use the id on the script tag, but it's bound a line above to the header-->
+	<h2>Players</h2> 
+	
+	<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable" data-bind="visible:players().length >0">
+		<thead class="fixedHeader">
+			<tr class="alternateRow">
+				<th>first name</th>
+				<th>last name</th>
+				<th class="narrow">year born</th>
+				<th class="narrow">class</th>
+				<!--{{if team =="ALL"}}-->
+					<th class="narrow">team</th>
+				<!--{{/if}}-->
+			</tr>	
+		</thead>
+		 <tbody class="scrollContent" data-bind="template: { name: 'playersTemplate', foreach: players}, visible: players().length > 0"></tbody>		
+	</table>
+	<script type="text/html" id="playersTemplate">
+		<tr class="normalRow">
+			<td><span data-bind="text:firstName"></span></td>
+			<td><span data-bind="text:lastName"></span></td>
+			<td class="narrow"><span data-bind="text:birthYear"></span></td>
+			<td class="narrow"><span data-bind="text:classYear"></span></td>
+			<td class="narrow"><a href="#" data-item-id="${team}" data-bind="text:team" data-uitype="link-to-item" data-item-type="team"></span></td>
+		</tr>      
+	</script>
+	
+	<p>Add Player:</p>
+	<form data-bind="submit: addPlayer">
+		<table border="0" cellpadding="0" cellspacing="0"  class="scrolltable">
+			<tr>
+				<td><input data-bind="value: newFirstName"></td>
+				<td><input data-bind="value: newLastName"></td>
+				<td class="narrow"><input data-bind="value: newBirthYear"></td>
+				<td class="narrow"><select data-bind="options: classYears, value:newClassYear, optionsText:'id'"></select></td>
+				<td class="narrow"><input data-bind="value: newTeam"></td>
+				<td><button type="submit">Add</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+<script type="text/javascript">
+	var _classYears = [
+		{id: "HS", name: "High School"}, 
+		{id: "JC", name: "Junior College"}, 
+		{id: "FR", name: "Freshman"}, 
+		{id: "SO", name: "Sophomore"}, 
+		{id: "JR", name: "Junior"}, 
+		{id: "SR", name: "Senior"}
+	];
+var playersViewModel ={
+	players : ko.observableArray([]),
+	//for select drop-down
+	classYears : ko.observableArray(_classYears),
+	
+	//input fields for player entry
+	newFirstName : ko.observable(),
+	newLastName : ko.observable(),
+	newBirthYear : ko.observable(),
+	newTeam : ko.observable(),
+	newClassYear : ko.observable(_classYears[0]),
+
+	addPlayer : function() {
+		this.players.push(new Player(this.newFirstName(), this.newLastName(), this.newBirthYear(), this.newTeam(), this.newClassYear().id,this));
+		this.newFirstName(""); 
+		this.newLastName(""); 
+		this.newBirthYear(""); 
+		this.newTeam("");
+		this.newClassYear(_classYears[0]);
+	},
+	
+	//initial load
+	init: function() {
+		var playerJSON = loadPeople(); 
+		var mappedPlayers = $.map(playerJSON,  function(item) {
+				return new Player(item.firstName, item.lastName, item.birthYear, item.team, item.classYear, this)
+		}); 
+		this.players(mappedPlayers);
+	}
+};
+</script> 
+</body>
+</html>

@@ -27,6 +27,12 @@ h3 {
 	margin-top:20px;
 }
 
+div.containerBox {
+	border: 1px solid #CC9966;
+	padding: 2px; 
+	width: auto; 
+}
+
 div.tableContainer {
     border: 1px solid #996633;
     clear: both;
@@ -47,6 +53,7 @@ thead.fixedHeader tr {
     position: relative;
 	width:100%;
 }
+/* taking this out when switching to KO - not sure why it's causing issues yet*/
 thead.fixedHeader tr {
     display: block;
 }
