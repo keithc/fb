@@ -1,0 +1,7 @@
+ [
+		{"firstName": "John", "lastName": "Smith", "birthYear":"1/1/1994", "team": "LSU", "classYear": "sophomore"},
+		{"firstName": "Joe", "lastName": "Stone", "birthYear":"12/12/1994", "team": "LSU", "classYear": "freshman"},
+		{"firstName": "Mike", "lastName": "Rice", "birthYear":"11/1/1993", "team": "ALA", "classYear": "junior"},
+		{"firstName": "Steve", "lastName": "Jones", "birthYear":"7/1/1994", "team": "ALA", "classYear": "senior"},
+		{"firstName": "Rick", "lastName": "Evans", "birthYear":"6/1/1994", "team": "ARK", "classYear": "sophomore"}
+	]

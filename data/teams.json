@@ -1,0 +1,7 @@
+ [
+	{"name":"LSU", "abbreviation":"LSU", "city":"Baton Rouge", "state": "LA", "conference":"SEC"},
+	{"name":"Alabama", "abbreviation":"ALA", "city":"Tuscaloosa", "state": "AL", "conference":"SEC"},
+	{"name":"Arkanasas", "abbreviation":"ARK", "city":"Little Rock", "state": "AR", "conference":"SEC"},
+	{"name":"Colorado", "abbreviation":"COL", "city":"Boulder", "state": "CO", "conference":"PAC12"},
+	{"name":"Southern California", "abbreviation":"USC", "city":"Los Angeles", "state": "CA", "conference":"PAC12"}
+	]
