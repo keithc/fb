@@ -94,7 +94,7 @@ function listPlayersByTeam(team){
 		var mainPane = $("#mainPane"); 
 		mainPane.empty(); 
 		
-		//filter teams by conference
+		//filter players by team
 		function isOnTeam(element, index, array) { 
 			return (element.team ===team); 
 		}
@@ -104,6 +104,7 @@ function listPlayersByTeam(team){
 }
 
 function listAllPlayers() { 
+	ko.applyBindings(_teamsViewModel, document.getElementById('teamSelectContainer')); 
 	ko.applyBindings(_playersViewModel, document.getElementById('playersContainer')); 
 	//	var mainPane = $("#mainPane"); 
 	//	mainPane.empty(); 

@@ -18,7 +18,12 @@
 	</ul>
 	
 	
+	
 	<div data-bind="template: { name: templateToUse, foreach: selectedMenuData }"></div>
+	
+	<script id="Home" type="text/html">
+		<h2>HOME SCREEN</h2><div data-bind="text: name"></div> 
+	</script> 
 	
 	<script id="Teams" type="text/html">
     	<div data-bind="text: name"></div>    
@@ -33,50 +38,47 @@
 	</script>
 	
 	<script type="text/javascript">
-	//var menuItem = function (id, data) {
-//		this.id = ko.observable(id); 
-//		this.data = ko.observable(data); 
-//	}
-	
+
 	function FBViewModel () {
 		//Data
 		var self = this; 
 		//self.menuItems = [new menuItem('Teams','teams.json'), new menuItem('Players','players.json'), new menuItem('Conferences','conferences.json')];
 		self.menuItems = ['Teams','Players','Conferences'];
-		self.selectedMenuItem = ko.observable(); 
+		self.selectedMenuItem = ko.observable("Home"); 
 		self.selectedMenuData = ko.observableArray(); 
-		self.selectedView = ko.observable("home");
+		
+		//template switching
+		self.templateToUse = function() {return self.selectedMenuItem()}.bind(FBViewModel); 
 		
 		//Behaviors
 		//hide other templates?
-		self.goToScreen = function (menuItem) { 	location.hash = menuItem; }; 
-		
-		//template switching
-	    self.templateToUse = function(item) {
-    	    	return item === self.selectedMenuItem() ? 'home' : self.selectedMenuItem();
-    		}.bind(FBViewModel);
+		self.goToScreen = function (menuItem) { location.hash = menuItem; }; 
 
 		// Client-side routes
 		Sammy(function (context) {
 			this.get('#:menuItem', function () {
-				self.selectedMenuItem(this.params.menuItem);
+				//only do this for things i know how to handle
+				//if (!(self.menuItems.contains(this.params.menuItem)))
+				//{
+				//	return false; 
+				//}
+				self.selectedMenuData(null); 
+				var selectedItem = this.params.menuItem; 
 				//get file name
-				var dataFile = self.selectedMenuItem().toLowerCase() + '.json';  
+				var dataFile = selectedItem.toLowerCase() + '.json';  
 				console.log(dataFile); 
-				//set the view 
-				self.selectedView= self.selectedMenuItem().toLowerCase() ; 
 				
-				self.selectedMenuData(null);
+				//todo - cache these
 				$.ajax({
           				url: 'data/' + dataFile,
           				dataType: 'json',
           				success: function(items) {
+							//alert ("updating menu item to " + selectedItem); 
+							self.selectedMenuItem(selectedItem);
+							
+							//alert ("updating menu data") ; 
+							//set the view & data //todo - switch view when caching. error handle. 
 							self.selectedMenuData(items); 
-							//var viewModel = ko.mapping.fromJS(data); ??
-            				//$.each(items, function(i, item) {
-              				//	console.log(item.firstName, '-', item.team);
-
-            			//});
          			 }
         		});
 				//$.get("/mail", { folder: this.params.folder }, self.selectedFolderData);
@@ -87,14 +89,25 @@
 				self.selectedMenuData(null);
 				//$.get("/mail", { mailId: this.params.mailId }, self.selectedMailData);
 			});
-
-			this.get('', function () { this.app.runRoute('get', '#Inbox') });
+			
+			//home screen
+			//this.get('', function () { this.app.runRoute('get', '#Inbox') });
 			
 		}).run(); 
 		
 	}
-	ko.applyBindings(new FBViewModel); 
+	var model = new FBViewModel;
+	ko.applyBindings(model); 
 	
+	Array.prototype.contains = function (itemId){
+	for (index in this) {  //todo check speed
+		if (this[index].name === itemId)
+		{
+			return true; 
+		}
+	}
+	return false; 
+	};
 	
 	function GetData(menuItem)
 	{
@@ -115,12 +128,16 @@
 		}
 	}
 	</script> 	
-
-	<hr />
-	<h2>Debug</h2>
-	<div data-bind="text: ko.toJSON(FBViewModel)"></div>
+	<hr>
+	<h2>debug</h2>
 	
-	
+	MenuItem:<div data-bind = "text:selectedMenuItem"></div> 
+	<br>
+	MenuData:<div data-bind="text: ko.toJSON(selectedMenuData)"></div>
+	<br>
+	template:<div data-bind="text:templateToUse()"></div>
+	<br>
+	<h2>/debug</h2>
 
 </body>
 </html>
