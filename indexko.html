@@ -8,7 +8,14 @@
 		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
 	</head>
 <body>
-
+	<hr>
+	<h2>debug</h2>
+	MenuItem: <span data-bind = "text:selectedMenuItem"></span> 
+	<br>
+	MenuData: <span data-bind="text: ko.toJSON(selectedMenuData)"></span>
+	<br>
+	template: <span data-bind="text:templateToUse()"></span>
+	<hr>
 	
 	<!-- Menu -->
 	<ul class="menu" data-bind="foreach: menuItems">
@@ -128,16 +135,7 @@
 		}
 	}
 	</script> 	
-	<hr>
-	<h2>debug</h2>
 	
-	MenuItem:<div data-bind = "text:selectedMenuItem"></div> 
-	<br>
-	MenuData:<div data-bind="text: ko.toJSON(selectedMenuData)"></div>
-	<br>
-	template:<div data-bind="text:templateToUse()"></div>
-	<br>
-	<h2>/debug</h2>
 
 </body>
 </html>
