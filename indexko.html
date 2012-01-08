@@ -10,9 +10,9 @@
 <body>
 	<hr>
 	<h2>debug</h2>
-	MenuItem: <span data-bind = "text:selectedMenuItem"></span> 
+	MenuItem: <span data-bind="text:selectedMenuItem"></span> 
 	<br>
-	MenuData: <span data-bind="text: ko.toJSON(selectedMenuData)"></span>
+	MenuData: <span data-bind="text:ko.toJSON(selectedMenuData)"></span>
 	<br>
 	template: <span data-bind="text:templateToUse()"></span>
 	<hr>
@@ -24,16 +24,16 @@
                    click: $root.goToScreen"></li>
 	</ul>
 	
-	
-	
+	<!-- function here to lookup data for boilerplate messaging: getScreenData(...) = {header:'blah', footer:'blah'}--> 
+	<!--<span data-bind="text:selectedMenuItem"></span>-->
 	<div data-bind="template: { name: templateToUse, foreach: selectedMenuData }"></div>
 	
 	<script id="Home" type="text/html">
-		<h2>HOME SCREEN</h2><div data-bind="text: name"></div> 
+		<h2>HOME SCREEN</h2><div data-bind="text: info"></div> 
 	</script> 
 	
 	<script id="Teams" type="text/html">
-    	<div data-bind="text: name"></div>    
+    	Teams<div data-bind="text: name"></div>    
 	</script>
 	
 	<script id="Players" type="text/html">
@@ -49,8 +49,7 @@
 	function FBViewModel () {
 		//Data
 		var self = this; 
-		//self.menuItems = [new menuItem('Teams','teams.json'), new menuItem('Players','players.json'), new menuItem('Conferences','conferences.json')];
-		self.menuItems = ['Teams','Players','Conferences'];
+		self.menuItems = ['Home','Teams','Players','Conferences'];
 		self.selectedMenuItem = ko.observable("Home"); 
 		self.selectedMenuData = ko.observableArray(); 
 		
@@ -58,19 +57,27 @@
 		self.templateToUse = function() {return self.selectedMenuItem()}.bind(FBViewModel); 
 		
 		//Behaviors
-		//hide other templates?
 		self.goToScreen = function (menuItem) { location.hash = menuItem; }; 
 
 		// Client-side routes
 		Sammy(function (context) {
 			this.get('#:menuItem', function () {
+				var selectedItem = this.params.menuItem; 
+				self.selectedMenuData(null);
+				
+				if (selectedItem === 'Home')  //more for things that aren't loading data? 
+				{
+					self.selectedMenuItem(selectedItem); 
+					self.selectedMenuData([{"info": "Home Data here"}]); 
+					return false;
+				}
+					
 				//only do this for things i know how to handle
 				//if (!(self.menuItems.contains(this.params.menuItem)))
 				//{
 				//	return false; 
-				//}
-				self.selectedMenuData(null); 
-				var selectedItem = this.params.menuItem; 
+				//} 
+				
 				//get file name
 				var dataFile = selectedItem.toLowerCase() + '.json';  
 				console.log(dataFile); 
