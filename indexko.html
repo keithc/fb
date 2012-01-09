@@ -15,8 +15,10 @@
 	MenuData: <span data-bind="text:ko.toJSON(selectedMenuData)"></span>
 	<br>
 	template: <span data-bind="text:templateToUse()"></span>
+	<br>
+	columns: <span data-bind="text:ko.toJSON(templateColumns)"></span>
 	<hr>
-	
+
 	<!-- Menu -->
 	<ul class="menu" data-bind="foreach: menuItems">
     	<li data-bind="text: $data,
@@ -26,32 +28,72 @@
 	
 	<!-- function here to lookup data for boilerplate messaging: getScreenData(...) = {header:'blah', footer:'blah'}--> 
 	<!--<span data-bind="text:selectedMenuItem"></span>-->
-	<div data-bind="template: { name: templateToUse, foreach: selectedMenuData }"></div>
+	<!-- build header row -->
+	<table>
+		<thead><tr data-bind="template:{name:'tableHeader', foreach:templateColumns}"></tr></thead>
+		<tbody data-bind="template:{name:templateToUse, foreach:selectedMenuData}"</tbody> 
+	</table>
+	
+	<script id="tableHeader" type="text/html">
+		<td><span data-bind="text:$data"></span></td>
+	</script>
+	
+	
+	<!--<div id="dataTemplate" data-bind="template: { name: templateToUse, foreach: selectedMenuData }"></div>-->
 	
 	<script id="Home" type="text/html">
 		<h2>HOME SCREEN</h2><div data-bind="text: info"></div> 
 	</script> 
 	
+	<!--MAKE THIS WORK - only need one data template if it would:: <div data-bind="text:$data.value"></div>--><!--don't put comments in the template, kills the td's-->
+	<!---maybe write a function to use the templateColums as lookup keys to get each value? --> 
 	<script id="Teams" type="text/html">
-    	Teams<div data-bind="text: name"></div>    
+    	<tr><td><span data-bind="text:name"></span></td><td><span data-bind="text:abbreviation"></span></td><td><span data-bind="text:city"></span></td><td><span data-bind="text:state"></span></td><td><span data-bind="text:conference"></span></td></tr>
 	</script>
 	
 	<script id="Players" type="text/html">
-    	<div data-bind="text: firstName"></div>    
+		<tr><td><span data-bind="text:firstName"></span></td><td><span data-bind="text:lastName"></span></td><td><span data-bind="text:birthYear"></span></td><td><span data-bind="text:team"></span></td><td><span data-bind="text:classYear"></span></td></tr>
 	</script>
 	
 	<script id="Conferences" type="text/html">
-    	<div data-bind="text: name"></div>    
+    	<tr><td><span data-bind="text: name"></span></td><td><span data-bind="text: abbreviation"></span></td></tr>
 	</script>
 	
 	<script type="text/javascript">
 
+	//var MenuItem = function(name) {
+	//	this.name = ko.observable(name);  
+		//http://jsfiddle.net/rniemeyer/R5MtC/
+		//this.isSelected = ko.computed(function() {
+		//return this === parent.selectedItem();        
+		//	}, this);
+	//	this.dataColumns = ko.computed(function() { 
+	//		
+	//	}, this); 
+	//};
+	
 	function FBViewModel () {
 		//Data
 		var self = this; 
 		self.menuItems = ['Home','Teams','Players','Conferences'];
 		self.selectedMenuItem = ko.observable("Home"); 
 		self.selectedMenuData = ko.observableArray(); 
+		
+	
+		self.templateColumns = ko.computed(function() { 
+				 
+		if ((self.selectedMenuData() != null) && (self.selectedMenuData()[0] != undefined)) 
+		{
+			var obj = self.selectedMenuData()[0]; 
+			var props = []; 
+			for (var prop in obj) {
+				props.push(prop); 
+			}
+			return props; 
+		}
+		return [];
+						
+		}, self); 
 		
 		//template switching
 		self.templateToUse = function() {return self.selectedMenuItem()}.bind(FBViewModel); 
@@ -64,7 +106,7 @@
 			this.get('#:menuItem', function () {
 				var selectedItem = this.params.menuItem; 
 				self.selectedMenuData(null);
-				
+				var a = self.templateColumns; 
 				if (selectedItem === 'Home')  //more for things that aren't loading data? 
 				{
 					self.selectedMenuItem(selectedItem); 
@@ -81,7 +123,8 @@
 				//get file name
 				var dataFile = selectedItem.toLowerCase() + '.json';  
 				console.log(dataFile); 
-				
+				self.firstName = dataFile; 
+				console.log('first: ' + self.firstName); 
 				//todo - cache these
 				$.ajax({
           				url: 'data/' + dataFile,
