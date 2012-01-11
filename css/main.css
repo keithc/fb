@@ -129,3 +129,23 @@ tbody.scrollContent td + td + td {
     width: 300px;
 }
 */
+ul.myTable {
+	width:500px; 
+	background:#333;
+	float:left; 
+	clear:left; 
+	margin:0; 
+	padding:0; 
+	border: 1px solid #CCC;
+}
+ul.myTable li{
+	padding: 3px 6px; 
+	display:block; 
+	list-style:none; 
+	float:none; 
+	width: auto; 
+}
+
+ul.myTable.tableHeader {
+	color:white; 
+}

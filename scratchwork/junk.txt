@@ -1,0 +1,11 @@
+<!--<span data-bind="text:$parent.templateColumns().length"></span>-->
+		<!--works: <span data-bind="text:ko.toJSON($parent.templateColumns)"></span>-->
+		<!--won't work - uses the selectedMenuData in the foreach<tr data-bind="foreach: $parent.templateColumns()"><span data-bind="text:ko.toJSON($data)"></span><td>11<span data-bind="text: $data['name']"></span></td></tr>-->
+		<!--<tr data-bind="template:{name:'TeamsRow', foreach:$parent.templateColumns()}"></tr>-->
+    	<!--<tr><td><span data-bind="text:$data['name']"></span><span data-bind="text:name"></span></td><td><span data-bind="text:abbreviation"></span></td><td><span data-bind="text:city"></span></td><td><span data-bind="text:state"></span></td><td><span data-bind="text:conference"></span></td></tr>-->
+		
+		<!--		<tr><td><table data-bind="template:{name:'TeamsRow', foreach: $parent.templateColumns}"></table></td></tr>-->
+		<tr data-bind="foreach: $parent.templateColumns"><td><span data-bind="text:$parent[$data]"></span></td></tr>				
+				
+	<!--	<tr>			<td>				<table data-bind="foreach: $parent.templateColumns">					<tr><td><span data-bind="text:$parent[$data]"></span></td></tr>								</table>						</td>				</tr>-->
+		
