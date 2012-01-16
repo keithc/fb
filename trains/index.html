@@ -225,7 +225,7 @@
 		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
 		<table border=1 data-bind="visible: stations().length > 0">
 			<thead><tr>
-				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Closed?</th><th>Controls</th>
+				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Trains at Station</th><th>Closed?</th><th>Controls</th>
 			</tr></thead>
 			<tbody data-bind="foreach: stations">
 				<tr>
@@ -234,6 +234,7 @@
 					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 					<td data-bind="text: cargoSize"></td>
 					<td data-bind="text: cargoSpace"></td>
+					<td data-bind="text: trainsAtStation().length"</td>
 					<td data-bind="text: closed"></td>
 					<td><a href="#" data-bind="click: $root.openOrClose">Close/Open</a> | 
 					<a href="#" data-bind="click: $root.removeStation">Remove</a></td>
@@ -249,7 +250,7 @@
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
 				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
-				<!-- enable = funds for this train < my funds   enable: myTrains().length < 5--> 
+				<!-- enable = funds for this train < my funds   enable: trains().length < 5--> 
 			</table>
 			<button type="submit">Add Station</button>
 		</form>
@@ -268,13 +269,13 @@
 		self.cargoSize = ko.observable(cargoSize);  //observable? can grow...determines cargo cargoSize
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
-		self.cargoOnHand = ko.observable(30); 
+		self.cargoOnHand = ko.observable(60); 
 		self.closed = ko.observable(false); 
 		self.cargoReady = false; // use to ask for a train pickup
 		
 		self.hasCargoRoom = ko.computed(function() { 
-			var cargoCapacity = cargoSize; //by cargo type? 
-			return cargoCapacity > self.cargoOnHand; 
+			var cargoCapacity = self.cargoSize(); //by cargo type? 
+			return cargoCapacity > self.cargoOnHand(); 
 		}); 
 		
 		self.cargoSpace = ko.computed(function() { 
@@ -296,7 +297,11 @@
 		} 
 		self.update = function() { 
 			self.useCargo(); 
-		}
+		};
+		
+		self.trainsAtStation = ko.computed(function() { 
+			return trainsModel.getTrainsAtStation(self.name()); 
+		} );
 		
 		//in case this needs to do more than toggle one day?
 		self.toggleState = function () 	{ self.closed(!self.closed()) }
@@ -341,6 +346,20 @@
 			return self.stations().length < self.stationsLimit; 
 		});
 		
+		self.getStation = function(stationName) { 
+			return ko.utils.arrayFirst(self.stations(), function(station) {
+				return station.name() === stationName; 
+			}); 				
+		}; 
+		
+		self.findNearestStationNeedingCargo = function(currentStation) { 
+			//TODO: get nearest
+			var station= ko.utils.arrayFirst(self.stations(), function(station) {
+				return station.hasCargoRoom(); 
+			}); 
+			return station ; 
+		} 
+		
 	};
 	var stationsModel = new StationsViewModel; 
 	ko.applyBindings(stationsModel, document.getElementById("StationsViewContainer")); 
@@ -348,18 +367,21 @@
 	</script> 
 	<!-- **** TRAINS **** --> 
 	<!-- trains view --> 
-	<div id="myTrainsViewContainer">
-		<h2>Your trains (<span data-bind="text: myTrains().length"></span>)</h2>
-		<table data-bind="visible: myTrains().length > 0">
+	<div id="trainsViewContainer">
+		<h2>Your trains (<span data-bind="text: trains().length"></span>)</h2>
+		<table border=1 data-bind="visible: trains().length > 0">
 			<thead><tr>
-				<th>Train name</th><th>Model</th><th>Condition</th><th></th>
+				<th>Train name</th><th>Model</th><th>Condition</th><th>Cargo Capacity</th><th>Free Cargo Space</th><th>Current Station</th><th>Controls</th>
 			</tr></thead>
-			<tbody data-bind="foreach: myTrains">
+			<tbody data-bind="foreach: trains">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: model" /></td>
 					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 					<td data-bind="text: condition"></td>
+					<td data-bind="text: cargoSpace"></td> 
+					<td data-bind="text: freeCargoSpace"></td> 
+					<td data-bind="text: currentStation"></td> 
 					<td><a href="#" data-bind="click: $root.removeTrain">Retire</a></td>
 				</tr>    
 			</tbody>
@@ -371,11 +393,11 @@
 				<td><input data-bind="value: newModel" placeholder="Train Model" /></td><!--select-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newStartStation" placeholder="Start Station"/></td><!--select-->
-				<!-- enable = funds for this train < my funds   enable: myTrains().length < 5--> 
+				<!-- enable = funds for this train < my funds   enable: trains().length < 5--> 
 			</table>
 			<button type="submit">Buy train</button>
 		</form>
-		<button data-bind="click: saveTrains(), enable: myTrains().length > 0">Save To Local Storage</button>
+		<button data-bind="click: saveTrains(), enable: trains().length > 0">Save To Local Storage</button>
 		
 	</div>
 	<!-- trains objects & viewmodel --> 
@@ -391,6 +413,7 @@
 		self.lastRepairDate = 6;
 		self.tuneUpOrdered = false; 
 		self.cargoSpace = 5; 
+		self.cargoOnBoard = ko.observable(5); 
 		
 		self.condition = ko.computed(function() { 
 			var repairDuration = 10 - self.lastRepairDate; //0 needs to be world calendar date
@@ -399,17 +422,31 @@
 			return repairDuration * self.lastRepairDate; 
 		}); 
 		
+		self.freeCargoSpace = ko.computed(function() { 
+			return self.cargoSpace - self.cargoOnBoard(); 
+		}); 
+		
 		self.update = function() { 
 			//move
+			//TODO: what makes a train go somewhere? 
+			if (self.cargoOnBoard() > 0) 
+			{
+				var destination = stationsModel.findNearestStationNeedingCargo(self.currentStation());
+				if (destination) 
+				{
+					self.currentStation(destination); //todo: take time based on distance
+				}
+			}
+			//if (stationsModel.getStation(self.startStation)
 			//pickup/move cargo
 			
 		}
 	
 	};
 	
-	function MyTrainsViewModel() {
+	function trainsViewModel() {
 		var self = this; 
-		self.myTrains = ko.observableArray(); 
+		self.trains = ko.observableArray(); 
 		self.trainsLimit = 10; 
 		//fields for adding
 		self.newName =ko.observable(); 
@@ -419,29 +456,41 @@
 		
 		//save to local storage
 		self.saveTrains = function () { 
-			localStorage.setItem('myTrains', JSON.stringify(self.myTrains)); 
+			localStorage.setItem('trains', JSON.stringify(self.trains)); 
 		} ;
 		//get from local storage
 		self.loadTrains = function() {
-			var retrievedObject = localStorage.getItem('myTrains');
-			self.myTrains = JSON.parse(retrievedObject);
+			var retrievedObject = localStorage.getItem('trains');
+			self.trains = JSON.parse(retrievedObject);
 		}; 
 		
 		self.addTrain = function() {
 		//check for existing, autogen id? 
-			self.myTrains.push(new Train(self.newName(), self.newModel(), "9/9/9", self.newStartStation())); 
+			self.trains.push(new Train(self.newName(), self.newModel(), "9/9/9", self.newStartStation())); 
 		};
 		
 		self.removeTrain = function(thisTrain) { 	
-			self.myTrains.remove(thisTrain); 
+			self.trains.remove(thisTrain); 
 		};
 		
 		self.addTrainsAllowed = ko.computed(function() { 
-			return self.myTrains().length < self.trainsLimit; 
+			return self.trains().length < self.trainsLimit; 
 		});
+		
+		self.getTrain = function(trainName) { 
+			return ko.utils.arrayFirst(self.trains(), function(train) {
+				return train.name() === trainName; 
+			}); 				
+		}; 
+		
+		self.getTrainsAtStation = function(stationName) { 
+			return ko.utils.arrayFilter(self.trains(), function(train) {
+				return train.currentStation() === stationName; 
+			}); 				
+		}; 
 	};
-	var trainsModel = new MyTrainsViewModel; 
-	ko.applyBindings(trainsModel, document.getElementById("myTrainsViewContainer")); 
+	var trainsModel = new trainsViewModel; 
+	ko.applyBindings(trainsModel, document.getElementById("trainsViewContainer")); 
 	
 	</script> 
 
@@ -450,7 +499,10 @@
 
 		stationsModel.stations.push(new Station("San Francisco","2","2","3","50")); 
 		stationsModel.stations.push(new Station("New Orleans","2","2","3","70"));
-		wvmodel.timer().objectsToUpdate = {"stations": stationsModel.stations(), "trains" : trainsModel.myTrains()}; 
+		trainsModel.trains.push(new Train("TrainOne","ModelABC", "12/21/2000", "San Francisco")); 
+		trainsModel.trains.push(new Train("TrainTwo","ModelDDD", "12/21/2004", "New Orleans")); 
+		
+		wvmodel.timer().objectsToUpdate = {"stations": stationsModel.stations(), "trains" : trainsModel.trains()}; 
 		//start me up
 		wvmodel.timer().startTimer();
 		
