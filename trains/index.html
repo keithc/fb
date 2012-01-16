@@ -76,7 +76,21 @@
 		
 		self.run = function() { 
 			if (self.running())
+			{
 				$("#statusContainer").append("z"); 
+				for (var key in self.objectsToUpdate) 
+				{
+					var obj = self.objectsToUpdate[key];
+					$.each(obj, function(index, value) { 
+						console.log(value.name());
+						value.update(); 
+					} ); 
+					//for (var prop in obj)
+					//{
+					//	console.log(key, prop); 
+					//}
+				}
+			}
 		} 
 		
 		self.toggle = function() { 
@@ -87,7 +101,10 @@
 			
 			self.lastStartStop(new Date()); 
 			
-		} ;
+		};
+		
+		//each object should be an array, objects in the array have to define an update method  TODO: make sure this is just a reference
+		self.objectsToUpdate = {  }; 
 	}; 
 	
 	
@@ -176,8 +193,7 @@
 	}
 	var wvmodel = new WorldViewModel;
 	ko.applyBindings(wvmodel, document.getElementById("worldViewContainer")); 
-	//start me up
-	wvmodel.timer().startTimer(); 
+ 
 	//doing this breaks the prototypes since they're looking at 'this', which is the domWindow from window.setInterval
 	//var gameStep = window.setInterval(wvmodel.timer().run, 1000) ; 
 	
@@ -207,16 +223,17 @@
 	<!-- stations view --> 
 	<div id="StationsViewContainer">
 		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
-		<table data-bind="visible: stations().length > 0">
+		<table border=1 data-bind="visible: stations().length > 0">
 			<thead><tr>
-				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Closed?</th><th>Controls</th>
+				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Closed?</th><th>Controls</th>
 			</tr></thead>
 			<tbody data-bind="foreach: stations">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: tracks" /></td>
 					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
-					<td data-bind="text: size"></td>
+					<td data-bind="text: cargoSize"></td>
+					<td data-bind="text: cargoSpace"></td>
 					<td data-bind="text: closed"></td>
 					<td><a href="#" data-bind="click: $root.openOrClose">Close/Open</a> | 
 					<a href="#" data-bind="click: $root.removeStation">Remove</a></td>
@@ -228,7 +245,7 @@
 			<table>
 				<td><input data-bind="value: newName" placeholder="Station Name" /></td>
 				<td><input data-bind="value: newTracks" placeholder="Station Tracks" /></td><!--select-->
-				<td><input data-bind="value: newSize" placeholder="Station Size" /></td><!--select/constrain-->
+				<td><input data-bind="value: newcargoSize" placeholder="Station cargoSize" /></td><!--select/constrain-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
 				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
@@ -243,21 +260,25 @@
 	
 	<!-- stations objects & viemodel --> 
 	<script type="text/javascript">
-	function Station(name, tracks, xLoc, yLoc, size)
+	function Station(name, tracks, xLoc, yLoc, cargoSize)
 	{
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.tracks = ko.observable(tracks); 
-		self.size = size;  //observable? can grow...determines cargo size
+		self.cargoSize = ko.observable(cargoSize);  //observable? can grow...determines cargo cargoSize
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
-		self.cargoOnHand = 30; 
+		self.cargoOnHand = ko.observable(30); 
 		self.closed = ko.observable(false); 
 		self.cargoReady = false; // use to ask for a train pickup
 		
 		self.hasCargoRoom = ko.computed(function() { 
-			var cargoCapacity = size; //by cargo type? 
+			var cargoCapacity = cargoSize; //by cargo type? 
 			return cargoCapacity > self.cargoOnHand; 
+		}); 
+		
+		self.cargoSpace = ko.computed(function() { 
+			return self.cargoSize() - self.cargoOnHand(); 
 		}); 
 		
 		self.tracksAvailable = ko.computed(function() {
@@ -266,14 +287,14 @@
 		});
 		
 		self.useCargo = function() { 
-			if (cargoOnHand > 0) 
+			if (self.cargoOnHand() > 0) 
 			{
-				//decrement cargo, increment space
-				cargoOnHand--; 
-				cargoCapacity++; 
+				//decrement cargo
+				self.cargoOnHand(self.cargoOnHand() -1) ; 
+				console.log(self.cargoOnHand()); 
 			}
 		} 
-		self.runTurn = function() { 
+		self.update = function() { 
 			self.useCargo(); 
 		}
 		
@@ -291,7 +312,7 @@
 		self.newTracks = ko.observable(); 
 		self.newXLoc = ko.observable(); 
 		self.newYLoc = ko.observable(); 
-		self.newSize = ko.observable(); 
+		self.newcargoSize = ko.observable(); 
 		
 		//save to local storage
 		self.saveStations = function () { 
@@ -305,7 +326,7 @@
 		
 		self.addStation = function() {
 		//check for existing, autogen id? 
-			self.stations.push(new Station(self.newName(), self.newTracks(), self.newXLoc(), self.newYLoc(), self.newSize())); 
+			self.stations.push(new Station(self.newName(), self.newTracks(), self.newXLoc(), self.newYLoc(), self.newcargoSize())); 
 		};
 		
 		self.openOrClose = function(thisStation) { 
@@ -321,8 +342,8 @@
 		});
 		
 	};
-	var stationModel = new StationsViewModel; 
-	ko.applyBindings(stationModel, document.getElementById("StationsViewContainer")); 
+	var stationsModel = new StationsViewModel; 
+	ko.applyBindings(stationsModel, document.getElementById("StationsViewContainer")); 
 	
 	</script> 
 	<!-- **** TRAINS **** --> 
@@ -378,7 +399,7 @@
 			return repairDuration * self.lastRepairDate; 
 		}); 
 		
-		self.runTurn = function() { 
+		self.update = function() { 
 			//move
 			//pickup/move cargo
 			
@@ -425,7 +446,14 @@
 	</script> 
 
 	<script type="text/javascript"> 
-	
+		//what are we watching? 
+
+		stationsModel.stations.push(new Station("San Francisco","2","2","3","50")); 
+		stationsModel.stations.push(new Station("New Orleans","2","2","3","70"));
+		wvmodel.timer().objectsToUpdate = {"stations": stationsModel.stations(), "trains" : trainsModel.myTrains()}; 
+		//start me up
+		wvmodel.timer().startTimer();
+		
 	</script>
 </body>
 </html>
