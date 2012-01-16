@@ -1,0 +1,384 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+		<script src="js/knockout.2.0.0.js"></script> 
+		<script src="js/sammy.js"></script> 
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
+	</head>
+<body>
+	<!--<hr>
+	<h2>debug</h2>
+	MenuItem: <span data-bind="text:selectedMenuItem"></span> 
+	<br>
+	MenuData: <span data-bind="text:ko.toJSON(selectedMenuData)"></span>
+	<br>
+	columns: <span data-bind="text:ko.toJSON(templateColumns)"></span>
+	<hr>-->
+
+	<!-- Menu -->
+	<div id="menuContainer">
+
+	</div>
+	
+	
+	<!-- function here to lookup data for boilerplate messaging: getScreenData(...) = {header:'blah', footer:'blah'}--> 
+	
+	<!-- world data view table --> 
+	<div id="worldViewContainer">
+		<ul><li data-bind="text:ko.toJSON(timer)"></li><li><a href="#" data-bind="click:toggleTimer">Start/Stop</a></li></ul>
+		<ul class="menu" data-bind="foreach: menuItems">
+    	<li data-bind="text: $data,
+                   css: { selected: $data == $root.selectedMenuItem() },
+                   click: $root.goToScreen"></li>
+		</ul>
+		
+		
+		<table>
+			<thead><tr data-bind="template:{name:'tableHeader', foreach:templateColumns}"></tr></thead>
+			<tbody data-bind="template:{name:'tableBody', foreach:selectedMenuData}"</tbody> 
+		</table>
+		
+		<script id="tableHeader" type="text/html">
+			<td><span data-bind="text:$data"></span></td>
+		</script>
+		
+		<script id="tableBody" type="text/html">
+			<tr data-bind="foreach: $parent.templateColumns"><td><span data-bind="text:$parent[$data]"></span></td></tr>				
+		</script>
+	</div>
+	
+	
+	<script type="text/javascript">	
+	function gameTimer() { 
+		var self = this; 
+		//Game runner
+		self.running = ko.observable(false); 
+		self.startTime = ko.observable(null); 
+		self.lastStartStop = ko.observable(null); 
+	} 
+	gameTimer.prototype.toggle = function() { 
+		this.running(!this.running()); 
+		
+		if (this.startTime() == null) 
+			this.startTime(new Date()); 
+			
+		this.lastStartStop(new Date()); 
+			
+	} ;
+
+	
+	function WorldViewModel () {
+		var self = this; 
+		//Game runner
+		self.timer = ko.observable(new gameTimer()) ; 
+		self.toggleTimer = function() { self.timer().toggle(); } 
+		
+		//Data
+		self.menuItems = ['Home','Trains','Stations','Cargo', 'Companies'];
+		self.selectedMenuItem = ko.observable("Home"); 
+		self.selectedMenuData = ko.observableArray(); 
+		
+	
+		self.templateColumns = ko.computed(function() { 
+			//get the first item in the array, build a list of its object properties to serve as columns //TODO: a way to cache this, maybe an array of [menuItem (key), cachedData (value)]
+			if ((self.selectedMenuData() != null) && (self.selectedMenuData()[0] != undefined)) 
+			{
+				var obj = self.selectedMenuData()[0]; 
+				var props = []; 
+				for (var prop in obj) {
+					props.push(prop); 
+				}
+				return props; 
+			}
+			return [];
+						
+		}, self); 
+		
+		//template switching
+		//self.templateToUse = function() {return self.selectedMenuItem()}.bind(self); 
+		
+		//Behaviors
+		self.goToScreen = function (menuItem) { location.hash = menuItem; }; 
+
+		// Client-side routes
+		Sammy(function (context) {
+			this.get('#:menuItem', function () {
+				var selectedItem = this.params.menuItem; 
+				self.selectedMenuData(null);
+
+				if (selectedItem === 'Home')  //more for things that aren't loading data? 
+				{
+					self.selectedMenuItem(selectedItem); 
+					self.selectedMenuData([{"info": "Home Data here"}]); 
+					return false;
+				}
+					
+				//only do this for things i know how to handle
+				//if (!(self.menuItems.contains(this.params.menuItem)))
+				//{
+				//	return false; 
+				//} 
+				
+				//get file name
+				var dataFile = selectedItem.toLowerCase() + '.json';  
+				console.log(dataFile); 
+				//todo - cache these
+				$.ajax({
+          				url: 'data/' + dataFile,
+          				dataType: 'json',
+          				success: function(items) {
+							//alert ("updating menu item to " + selectedItem); 
+							self.selectedMenuItem(selectedItem);
+							
+							//alert ("updating menu data") ; 
+							//set the view & data //todo - switch view when caching. error handle. 
+							self.selectedMenuData(items); 
+         			 }
+        		});
+				//$.get("/mail", { folder: this.params.folder }, self.selectedFolderData);
+			});
+			
+			this.get('#:menuItem/:itemId', function () {
+				self.selectedMenuItem(this.params.menuItem);
+				self.selectedMenuData(null);
+				//$.get("/mail", { mailId: this.params.mailId }, self.selectedMailData);
+			});
+			
+			//home screen
+			//this.get('', function () { this.app.runRoute('get', '#Inbox') });
+			
+		}).run(); 
+		
+	}
+	var model = new WorldViewModel;
+	ko.applyBindings(model, document.getElementById("worldViewContainer")); 
+	
+	//string.format equiv
+	String.format = String.prototype.format = function() {
+    var i=0;
+    var string = (typeof(this) == "function" && !(i++)) ? arguments[0] : this;
+ 
+    for (; i < arguments.length; i++)
+        string = string.replace(/\{\d+?\}/, arguments[i]);
+ 
+    return string;
+}
+	Array.prototype.contains = function (itemId){
+	for (index in this) {  //todo check speed
+		if (this[index].name === itemId)
+		{
+			return true; 
+		}
+	}
+	return false; 
+	};
+	</script> 	
+	
+	
+	<!-- stations view --> 
+	<div id="StationsViewContainer">
+		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
+		<table data-bind="visible: stations().length > 0">
+			<thead><tr>
+				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Closed?</th><th>Controls</th>
+			</tr></thead>
+			<tbody data-bind="foreach: stations">
+				<tr>
+					<td><span data-bind="text: name" /></td>
+					<td><span data-bind="text: tracks" /></td>
+					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+					<td data-bind="text: size"></td>
+					<td data-bind="text: closed"></td>
+					<td><a href="#" data-bind="click: $root.openOrClose">Close/Open</a> | 
+					<a href="#" data-bind="click: $root.removeStation">Remove</a></td>
+				</tr>    
+			</tbody>
+		</table>
+		Enter a New Train
+		<form data-bind="submit:addStation">
+			<table>
+				<td><input data-bind="value: newName" placeholder="Station Name" /></td>
+				<td><input data-bind="value: newTracks" placeholder="Station Tracks" /></td><!--select-->
+				<td><input data-bind="value: newSize" placeholder="Station Size" /></td><!--select/constrain-->
+				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
+				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
+				<!-- enable = funds for this train < my funds   enable: myTrains().length < 5--> 
+			</table>
+			<button type="submit">Add Station</button>
+		</form>
+		<button data-bind="click: saveStations(), enable: stations().length > 0">Save To Local Storage</button>
+		
+	</div>
+	
+	
+	<!-- stations objects & viemodel --> 
+	<script type="text/javascript">
+	function Station(name, tracks, xLoc, yLoc, size)
+	{
+		var self=this; 
+		self.name = ko.observable(name); 
+		self.tracks = ko.observable(tracks); 
+		self.size = size;  //observable? can grow...
+		self.xLoc = xLoc; 
+		self.yLoc = yLoc;
+		self.cargoOnHand = 0; 
+		self.closed = ko.observable(false); 
+		
+		self.hasCargoRoom = ko.computed(function() { 
+			var cargoCapacity = size; //by cargo type? 
+			return cargoCapacity > self.cargoOnHand; 
+		}); 
+		
+		self.tracksAvailable = ko.computed(function() {
+			var trainsOnHand = 0; //go get this
+			return self.tracks > self.trainsOnHand; 
+		});
+		
+		//in case this needs to do more than toggle one day?
+		self.toggleState = function () 	{ self.closed(!self.closed()) }
+	
+	};
+	
+	function StationsViewModel() {
+		var self = this; 
+		self.stations = ko.observableArray(); 
+		self.stationsLimit = 10; 
+		//fields for adding
+		self.newName =ko.observable(); 
+		self.newTracks = ko.observable(); 
+		self.newXLoc = ko.observable(); 
+		self.newYLoc = ko.observable(); 
+		self.newSize = ko.observable(); 
+		
+		//save to local storage
+		self.saveStations = function () { 
+			localStorage.setItem('stations', JSON.stringify(self.stations)); 
+		} ;
+		//get from local storage
+		self.loadTrains = function() {
+			var retrievedObject = localStorage.getItem('stations');
+			self.stations = JSON.parse(retrievedObject);
+		}; 
+		
+		self.addStation = function() {
+		//check for existing, autogen id? 
+			self.stations.push(new Station(self.newName(), self.newTracks(), self.newXLoc(), self.newYLoc(), self.newSize())); 
+		};
+		
+		self.openOrClose = function(thisStation) { 
+			thisStation.toggleState(); 
+		} 
+		
+		self.removeStation = function(thisStation) { 	
+			self.stations.remove(thisStation); 
+		};
+		
+		self.addStationsAllowed = ko.computed(function() { 
+			return self.stations().length < self.stationsLimit; 
+		});
+		
+	};
+	var stationModel = new StationsViewModel; 
+	ko.applyBindings(stationModel, document.getElementById("StationsViewContainer")); 
+	
+	</script> 
+	<!-- trains view --> 
+		<!-- my trains view --> 
+	<div id="myTrainsViewContainer">
+		<h2>Your trains (<span data-bind="text: myTrains().length"></span>)</h2>
+		<table data-bind="visible: myTrains().length > 0">
+			<thead><tr>
+				<th>Train name</th><th>Model</th><th>Condition</th><th></th>
+			</tr></thead>
+			<tbody data-bind="foreach: myTrains">
+				<tr>
+					<td><span data-bind="text: name" /></td>
+					<td><span data-bind="text: model" /></td>
+					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+					<td data-bind="text: condition"></td>
+					<td><a href="#" data-bind="click: $root.removeTrain">Retire</a></td>
+				</tr>    
+			</tbody>
+		</table>
+		Enter a New Train
+		<form data-bind="submit:addTrain">
+			<table>
+				<td><input data-bind="value: newName" placeholder="Train Name" /></td>
+				<td><input data-bind="value: newModel" placeholder="Train Model" /></td><!--select-->
+				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+				<td><input data-bind="value: newStartStation" placeholder="Start Station"/></td><!--select-->
+				<!-- enable = funds for this train < my funds   enable: myTrains().length < 5--> 
+			</table>
+			<button type="submit">Buy train</button>
+		</form>
+		<button data-bind="click: saveTrains(), enable: myTrains().length > 0">Save To Local Storage</button>
+		
+	</div>
+	<!-- trains objects & viewmodel --> 
+	<script type="text/javascript">
+	function Train(name, model, purchaseDate, startStation)
+	{
+		var self=this; 
+		self.name = ko.observable(name); 
+		self.model = ko.observable(model); 
+		self.purchaseDate = purchaseDate; 
+		self.startStation = startStation; 
+		self.currentStation = ko.observable(startStation);
+		self.lastRepairDate = 6;
+		self.tuneUpOrdered = false; 
+		
+		self.condition = ko.computed(function() { 
+			var repairDuration = 10 - self.lastRepairDate; //0 needs to be world calendar date
+			//get model's reliability
+			var reliability = 80; 
+			return repairDuration * self.lastRepairDate; 
+		}); 
+	
+	};
+	
+	function MyTrainsViewModel() {
+		var self = this; 
+		self.myTrains = ko.observableArray(); 
+		self.trainsLimit = 10; 
+		//fields for adding
+		self.newName =ko.observable(); 
+		self.newModel = ko.observable(); 
+		self.newStartStation = ko.observable(); 
+		
+		
+		//save to local storage
+		self.saveTrains = function () { 
+			localStorage.setItem('myTrains', JSON.stringify(self.myTrains)); 
+		} ;
+		//get from local storage
+		self.loadTrains = function() {
+			var retrievedObject = localStorage.getItem('myTrains');
+			self.myTrains = JSON.parse(retrievedObject);
+		}; 
+		
+		self.addTrain = function() {
+		//check for existing, autogen id? 
+			self.myTrains.push(new Train(self.newName(), self.newModel(), "9/9/9", self.newStartStation())); 
+		};
+		
+		self.removeTrain = function(thisTrain) { 	
+			self.myTrains.remove(thisTrain); 
+		};
+		
+		self.addTrainsAllowed = ko.computed(function() { 
+			return self.myTrains().length < self.trainsLimit; 
+		});
+	};
+	var trainsModel = new MyTrainsViewModel; 
+	ko.applyBindings(trainsModel, document.getElementById("myTrainsViewContainer")); 
+	
+	</script> 
+
+	<script type="text/javascript"> 
+	
+	</script>
+</body>
+</html>

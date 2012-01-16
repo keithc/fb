@@ -64,11 +64,6 @@
 		self.selectedMenuItem = ko.observable("Home"); 
 		self.selectedMenuData = ko.observableArray(); 
 		
-		//self.templateWidth = self.templateColumns.length * 100; 
-		//self.getTemplateColumn = ko.computed(function() { 
-		//	var cols = self.templateColumns; 
-		//	
-		//}
 	
 		self.templateColumns = ko.computed(function() { 
 			//get the first item in the array, build a list of its object properties to serve as columns //TODO: a way to cache this, maybe an array of [menuItem (key), cachedData (value)]
