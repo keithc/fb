@@ -49,7 +49,7 @@
 		</script>
 	</div>
 	
-	
+	<div id="statusContainer"></div> 
 	<script type="text/javascript">	
 	function gameTimer() { 
 		var self = this; 
@@ -57,17 +57,39 @@
 		self.running = ko.observable(false); 
 		self.startTime = ko.observable(null); 
 		self.lastStartStop = ko.observable(null); 
-	} 
-	gameTimer.prototype.toggle = function() { 
-		this.running(!this.running()); 
 		
-		if (this.startTime() == null) 
-			this.startTime(new Date()); 
+		self.timerId = null; 
+		self.startTimer = function() { 
+			var instance = this; //for scoping the this - otherwise, it's the DOMWindow (window.setInterval)
+			if (!self.timerId) { 
+				this.timerId = setInterval(function() { 
+					self.run();
+				},1000);
 			
-		this.lastStartStop(new Date()); 
+			} 
+		} ;
+		
+		self.stopTimer = function() { 
+			clearInterval(self.timerId); 
+			self.timerId = null; 
+		} 
+		
+		self.run = function() { 
+			if (self.running())
+				$("#statusContainer").append("z"); 
+		} 
+		
+		self.toggle = function() { 
+			self.running(!self.running()); 
+		
+			if (self.startTime() == null) 
+				self.startTime(new Date()); 
 			
-	} ;
-
+			self.lastStartStop(new Date()); 
+			
+		} ;
+	}; 
+	
 	
 	function WorldViewModel () {
 		var self = this; 
@@ -152,8 +174,13 @@
 		}).run(); 
 		
 	}
-	var model = new WorldViewModel;
-	ko.applyBindings(model, document.getElementById("worldViewContainer")); 
+	var wvmodel = new WorldViewModel;
+	ko.applyBindings(wvmodel, document.getElementById("worldViewContainer")); 
+	//start me up
+	wvmodel.timer().startTimer(); 
+	//doing this breaks the prototypes since they're looking at 'this', which is the domWindow from window.setInterval
+	//var gameStep = window.setInterval(wvmodel.timer().run, 1000) ; 
+	
 	
 	//string.format equiv
 	String.format = String.prototype.format = function() {
@@ -176,7 +203,7 @@
 	};
 	</script> 	
 	
-	
+	<!-- **** STATIONS **** --> 
 	<!-- stations view --> 
 	<div id="StationsViewContainer">
 		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
@@ -221,11 +248,12 @@
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.tracks = ko.observable(tracks); 
-		self.size = size;  //observable? can grow...
+		self.size = size;  //observable? can grow...determines cargo size
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
-		self.cargoOnHand = 0; 
+		self.cargoOnHand = 30; 
 		self.closed = ko.observable(false); 
+		self.cargoReady = false; // use to ask for a train pickup
 		
 		self.hasCargoRoom = ko.computed(function() { 
 			var cargoCapacity = size; //by cargo type? 
@@ -236,6 +264,18 @@
 			var trainsOnHand = 0; //go get this
 			return self.tracks > self.trainsOnHand; 
 		});
+		
+		self.useCargo = function() { 
+			if (cargoOnHand > 0) 
+			{
+				//decrement cargo, increment space
+				cargoOnHand--; 
+				cargoCapacity++; 
+			}
+		} 
+		self.runTurn = function() { 
+			self.useCargo(); 
+		}
 		
 		//in case this needs to do more than toggle one day?
 		self.toggleState = function () 	{ self.closed(!self.closed()) }
@@ -285,8 +325,8 @@
 	ko.applyBindings(stationModel, document.getElementById("StationsViewContainer")); 
 	
 	</script> 
+	<!-- **** TRAINS **** --> 
 	<!-- trains view --> 
-		<!-- my trains view --> 
 	<div id="myTrainsViewContainer">
 		<h2>Your trains (<span data-bind="text: myTrains().length"></span>)</h2>
 		<table data-bind="visible: myTrains().length > 0">
@@ -329,6 +369,7 @@
 		self.currentStation = ko.observable(startStation);
 		self.lastRepairDate = 6;
 		self.tuneUpOrdered = false; 
+		self.cargoSpace = 5; 
 		
 		self.condition = ko.computed(function() { 
 			var repairDuration = 10 - self.lastRepairDate; //0 needs to be world calendar date
@@ -336,6 +377,12 @@
 			var reliability = 80; 
 			return repairDuration * self.lastRepairDate; 
 		}); 
+		
+		self.runTurn = function() { 
+			//move
+			//pickup/move cargo
+			
+		}
 	
 	};
 	
