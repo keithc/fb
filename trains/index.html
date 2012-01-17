@@ -27,12 +27,16 @@
 	
 	<!-- world data view table --> 
 	<div id="worldViewContainer">
-		<ul><li data-bind="text:ko.toJSON(timer)"></li><li><a href="#" data-bind="click:toggleTimer">Start/Stop</a></li></ul>
-		<ul class="menu" data-bind="foreach: menuItems">
-    	<li data-bind="text: $data,
+		<!--<ul><li data-bind="text:ko.toJSON(timer)"></li><li><a href="#" data-bind="click:toggleTimer">Start/Stop</a></li></ul>-->
+		<ul class="headerMenuBar">
+			<li class="button"><a href="#" data-bind="click:toggleTimer, css: {on: timer().running }">Start/Stop</a></li>
+			Running: <li class="infoBox" data-bind="text:timer().running"></li>
+		</ul>
+		<!--<ul class="menu" data-bind="foreach: menuItems">
+			<li data-bind="text: $data,
                    css: { selected: $data == $root.selectedMenuItem() },
                    click: $root.goToScreen"></li>
-		</ul>
+		</ul>--> <!--removing for now til i need sammy again--> 
 		
 		
 		<table>
@@ -77,12 +81,12 @@
 		self.run = function() { 
 			if (self.running())
 			{
-				$("#statusContainer").append("z"); 
-				for (var key in self.objectsToUpdate) 
+				$("#statusContainer").append("."); 
+				for (var key in self.objectsToUpdate) //maybe just hold the id's of the objects? 
 				{
 					var obj = self.objectsToUpdate[key];
 					$.each(obj, function(index, value) { 
-						console.log(value.name());
+						//console.log(value.name());
 						value.update(); 
 					} ); 
 					//for (var prop in obj)
@@ -225,15 +229,15 @@
 		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
 		<table border=1 data-bind="visible: stations().length > 0">
 			<thead><tr>
-				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Trains at Station</th><th>Closed?</th><th>Controls</th>
+				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Location</th><th>Trains at Station</th><th>Closed?</th><th>Controls</th>
 			</tr></thead>
 			<tbody data-bind="foreach: stations">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: tracks" /></td>
-					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 					<td data-bind="text: cargoSize"></td>
 					<td data-bind="text: cargoSpace"></td>
+					<td data-bind="text: location"></td>
 					<td data-bind="text: trainsAtStation().length"</td>
 					<td data-bind="text: closed"></td>
 					<td><a href="#" data-bind="click: $root.openOrClose">Close/Open</a> | 
@@ -282,6 +286,10 @@
 			return self.cargoSize() - self.cargoOnHand(); 
 		}); 
 		
+		self.location = ko.computed(function() { 
+			return self.xLoc + ',' + self.yLoc; 
+		}); 
+		
 		self.tracksAvailable = ko.computed(function() {
 			var trainsOnHand = 0; //go get this
 			return self.tracks > self.trainsOnHand; 
@@ -291,8 +299,7 @@
 			if (self.cargoOnHand() > 0) 
 			{
 				//decrement cargo
-				self.cargoOnHand(self.cargoOnHand() -1) ; 
-				console.log(self.cargoOnHand()); 
+				self.cargoOnHand(self.cargoOnHand() -1) ;  
 			}
 		} 
 		self.update = function() { 
@@ -302,6 +309,19 @@
 		self.trainsAtStation = ko.computed(function() { 
 			return trainsModel.getTrainsAtStation(self.name()); 
 		} );
+		
+		//semi-override
+		self.getDistanceToStationName = function(destinationStationName) {
+			var destStation = stationsModel.getStation(destinationStationName); 
+			return self.getDistanceToStation(destStation); 
+		}
+		
+		self.getDistanceToStation = function(destinationStation) { 
+			var xDist = (destinationStation.xLoc - self.xLoc); 
+			var yDist = (destinationStation.yLoc - self.yLoc); 
+			var distance = Math.sqrt(xDist*xDist + yDist*yDist); 
+			return distance; 
+		}; 
 		
 		//in case this needs to do more than toggle one day?
 		self.toggleState = function () 	{ self.closed(!self.closed()) }
@@ -381,7 +401,7 @@
 					<td data-bind="text: condition"></td>
 					<td data-bind="text: cargoSpace"></td> 
 					<td data-bind="text: freeCargoSpace"></td> 
-					<td data-bind="text: currentStation"></td> 
+					<td data-bind="text: currentStation().name"></td> 
 					<td><a href="#" data-bind="click: $root.removeTrain">Retire</a></td>
 				</tr>    
 			</tbody>
@@ -407,13 +427,18 @@
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.model = ko.observable(model); 
+		self.speed = 20; //todo: base on model
 		self.purchaseDate = purchaseDate; 
 		self.startStation = startStation; 
 		self.currentStation = ko.observable(startStation);
+		self.destinationStation = ko.observable(null); 
+		self.currentXLoc = 0; 
+		self.currentYLoc = 0; 
 		self.lastRepairDate = 6;
 		self.tuneUpOrdered = false; 
 		self.cargoSpace = 5; 
 		self.cargoOnBoard = ko.observable(5); 
+		self.travelPoints = []; 
 		
 		self.condition = ko.computed(function() { 
 			var repairDuration = 10 - self.lastRepairDate; //0 needs to be world calendar date
@@ -431,10 +456,34 @@
 			//TODO: what makes a train go somewhere? 
 			if (self.cargoOnBoard() > 0) 
 			{
-				var destination = stationsModel.findNearestStationNeedingCargo(self.currentStation());
-				if (destination) 
+				if (!self.destinationStation()) 
+					self.destinationStation(stationsModel.findNearestStationNeedingCargo(self.currentStation())); 
+				//if we have't reached it yet, keep going
+				if (self.destinationStation() && self.currentStation().name() != self.destinationStation().name()) 
 				{
-					self.currentStation(destination); //todo: take time based on distance
+					//travel to destination
+					if (self.travelPoints.length == 0)
+					{
+						self.travelPoints = bline(self.currentXLoc, self.currentYLoc, self.destinationStation().xLoc, self.destinationStation().yLoc); 
+					}
+					else
+					{
+						//get the next two points from the start of the array
+						var nextX = self.travelPoints.shift(); 
+						var nextY = self.travelPoints.shift(); 
+						self.currentXLoc = nextX; 
+						self.currentYLoc = nextY; 
+						console.log(self.name() + "[" + self.currentXLoc + "," + self.currentYLoc + "]"); 
+						if (self.currentXLoc === self.destinationStation().xLoc && self.currentYLoc === self.destinationStation().yLoc)
+							self.currentStation(self.destinationStation()); //todo: take time based on speed
+					}
+					
+				}
+				else //we're at the destination
+				{
+					//transfer cargo
+					self.currentStation().cargoOnHand(self.currentStation().cargoOnHand() + self.cargoOnBoard()); //todo: take into account station capacity
+					self.cargoOnBoard(0); 
 				}
 			}
 			//if (stationsModel.getStation(self.startStation)
@@ -492,15 +541,34 @@
 	var trainsModel = new trainsViewModel; 
 	ko.applyBindings(trainsModel, document.getElementById("trainsViewContainer")); 
 	
+	//bresenham's line algorithm
+	function bline(x0, y0, x1, y1) {
+	  var points = []; 
+	  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	  var dy = Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1; 
+	  var err = (dx>dy ? dx : -dy)/2;
+	 
+	  while (true) {
+		//setPixel(x0,y0);
+		$("#statusContainer").append(x0 + ',' + y0+'|') ; 
+		points.push(x0); 
+		points.push(y0); 
+		if (x0 === x1 && y0 === y1) break;
+		var e2 = err;
+		if (e2 > -dx) { err -= dy; x0 += sx; }
+		if (e2 < dy) { err += dx; y0 += sy; }
+	  }
+	  return points; 
+	}
 	</script> 
 
 	<script type="text/javascript"> 
 		//what are we watching? 
 
-		stationsModel.stations.push(new Station("San Francisco","2","2","3","50")); 
-		stationsModel.stations.push(new Station("New Orleans","2","2","3","70"));
-		trainsModel.trains.push(new Train("TrainOne","ModelABC", "12/21/2000", "San Francisco")); 
-		trainsModel.trains.push(new Train("TrainTwo","ModelDDD", "12/21/2004", "New Orleans")); 
+		stationsModel.stations.push(new Station("San Francisco","2",10,50,"50")); 
+		stationsModel.stations.push(new Station("New Orleans","2",20,70,"70"));
+		trainsModel.trains.push(new Train("TrainOne","ModelABC", "12/21/2000", stationsModel.getStation("San Francisco"))); 
+		trainsModel.trains.push(new Train("TrainTwo","ModelDDD", "12/21/2004", stationsModel.getStation("New Orleans"))); 
 		
 		wvmodel.timer().objectsToUpdate = {"stations": stationsModel.stations(), "trains" : trainsModel.trains()}; 
 		//start me up

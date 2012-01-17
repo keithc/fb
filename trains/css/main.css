@@ -23,6 +23,34 @@ h3 {
     margin: 0 0 15px;
 }
 
+.headerMenuBar { 
+	display:inline; 
+	padding-left:10px; 
+}
+.headerMenuBar li  {
+	display:inline-block; 
+}
+
+.infoBox { 
+
+} 
+.button{ 
+	margin-right:5px; 
+	background-color: #339933;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 2px solid #1F5C1F;
+	padding: 5px;
+	
+}
+.button on { 
+} 
+.button a { 
+	color:white; 
+	text-decoration:none; 
+}
+
+
 #mainPane{
 	margin-top:20px;
 }
