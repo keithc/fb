@@ -119,7 +119,7 @@
 		self.toggleTimer = function() { self.timer().toggle(); } 
 		
 		//Data
-		self.menuItems = ['Home','Trains','Stations','Cargo', 'Companies'];
+		self.menuItems = ['Home','Planes','Airports','Passengers', 'Companies'];
 		self.selectedMenuItem = ko.observable("Home"); 
 		self.selectedMenuData = ko.observableArray(); 
 		
@@ -223,102 +223,93 @@
 	};
 	</script> 	
 	
-	<!-- **** STATIONS **** --> 
-	<!-- stations view --> 
-	<div id="StationsViewContainer">
-		<h2>Stations(<span data-bind="text: stations().length"></span>)</h2>
-		<table border=1 data-bind="visible: stations().length > 0">
+	<!-- **** AirportS **** --> 
+	<!-- Airports view --> 
+	<div id="AirportsViewContainer">
+		<h2>Airports(<span data-bind="text: Airports().length"></span>)</h2>
+		<table border=1 data-bind="visible: Airports().length > 0">
 			<thead><tr>
-				<th>Station Name</th><th>Tracks</th><th>Cargo Size</th><th>Free Cargo Space</th><th>Location</th><th>Trains at Station</th><th>Closed?</th><th>Controls</th>
+				<th>Airport Name</th><th>Gates</th><th>Passengers Waiting</th><th>Location</th><th>Planes at Airport</th><th>Closed?</th><th>Controls</th>
 			</tr></thead>
-			<tbody data-bind="foreach: stations">
+			<tbody data-bind="foreach: Airports">
 				<tr>
 					<td><span data-bind="text: name" /></td>
-					<td><span data-bind="text: tracks" /></td>
-					<td data-bind="text: cargoSize"></td>
-					<td data-bind="text: cargoSpace"></td>
+					<td><span data-bind="text: gates" /></td>
+					<td data-bind="text: passengersWaiting"></td>
 					<td data-bind="text: location"></td>
-					<td data-bind="text: trainsAtStation().length"</td>
+					<td data-bind="text: PlanesAtAirport().length"</td>
 					<td data-bind="text: closed"></td>
 					<td><a href="#" data-bind="click: $root.openOrClose">Close/Open</a> | 
-					<a href="#" data-bind="click: $root.removeStation">Remove</a></td>
+					<a href="#" data-bind="click: $root.removeAirport">Remove</a></td>
 				</tr>    
 			</tbody>
 		</table>
-		Enter a New Train
-		<form data-bind="submit:addStation">
+		Enter a New Plane
+		<form data-bind="submit:addAirport">
 			<table>
-				<td><input data-bind="value: newName" placeholder="Station Name" /></td>
-				<td><input data-bind="value: newTracks" placeholder="Station Tracks" /></td><!--select-->
-				<td><input data-bind="value: newcargoSize" placeholder="Station cargoSize" /></td><!--select/constrain-->
+				<td><input data-bind="value: newName" placeholder="Airport Name" /></td>
+				<td><input data-bind="value: newGates" placeholder="Airport Gates" /></td><!--select-->
+				<td><input data-bind="value: newpassengerGainRate" placeholder="Passengers Gained/sec" /></td><!--select/consPlane-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
 				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
-				<!-- enable = funds for this train < my funds   enable: trains().length < 5--> 
+				<!-- enable = funds for this Plane < my funds   enable: Planes().length < 5--> 
 			</table>
-			<button type="submit">Add Station</button>
+			<button type="submit">Add Airport</button>
 		</form>
-		<button data-bind="click: saveStations(), enable: stations().length > 0">Save To Local Storage</button>
+		<button data-bind="click: saveAirports(), enable: Airports().length > 0">Save To Local Storage</button>
 		
 	</div>
 	
 	
-	<!-- stations objects & viemodel --> 
+	<!-- Airports objects & viemodel --> 
 	<script type="text/javascript">
-	function Station(name, tracks, xLoc, yLoc, cargoSize)
+	function Airport(name, gates, xLoc, yLoc, passengerGainRate)
 	{
 		var self=this; 
 		self.name = ko.observable(name); 
-		self.tracks = ko.observable(tracks); 
-		self.cargoSize = ko.observable(cargoSize);  //observable? can grow...determines cargo cargoSize
+		self.gates = ko.observable(gates); 
+		self.passengerGainRate = ko.observable(passengerGainRate); 
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
-		self.cargoOnHand = ko.observable(60); 
+		self.passengersWaiting = ko.observable(60); 
 		self.closed = ko.observable(false); 
-		self.cargoReady = false; // use to ask for a train pickup
-		
-		self.hasCargoRoom = ko.computed(function() { 
-			var cargoCapacity = self.cargoSize(); //by cargo type? 
-			return cargoCapacity > self.cargoOnHand(); 
-		}); 
-		
-		self.cargoSpace = ko.computed(function() { 
-			return self.cargoSize() - self.cargoOnHand(); 
-		}); 
+		self.PassengersReady = false; // use to ask for a Plane pickup
+		 
 		
 		self.location = ko.computed(function() { 
 			return self.xLoc + ',' + self.yLoc; 
 		}); 
 		
-		self.tracksAvailable = ko.computed(function() {
-			var trainsOnHand = 0; //go get this
-			return self.tracks > self.trainsOnHand; 
+		self.gatesAvailable = ko.computed(function() {
+			var PlanesOnHand = 0; //go get this
+			return self.gates > self.PlanesOnHand; 
 		});
 		
-		self.useCargo = function() { 
-			if (self.cargoOnHand() > 0) 
+		self.gainPassengers = function() { 
+			if (!self.closed())
 			{
-				//decrement cargo
-				self.cargoOnHand(self.cargoOnHand() -1) ;  
+			//increment Passengers
+				self.passengersWaiting(self.passengersWaiting() + self.passengerGainRate()) ;  
 			}
 		} 
 		self.update = function() { 
-			self.useCargo(); 
+			self.gainPassengers(); 
 		};
 		
-		self.trainsAtStation = ko.computed(function() { 
-			return trainsModel.getTrainsAtStation(self.name()); 
+		self.PlanesAtAirport = ko.computed(function() { 
+			return PlanesModel.getPlanesAtAirport(self.name()); 
 		} );
 		
 		//semi-override
-		self.getDistanceToStationName = function(destinationStationName) {
-			var destStation = stationsModel.getStation(destinationStationName); 
-			return self.getDistanceToStation(destStation); 
+		self.getDistanceToAirportName = function(destinationAirportName) {
+			var destAirport = AirportsModel.getAirport(destinationAirportName); 
+			return self.getDistanceToAirport(destAirport); 
 		}
 		
-		self.getDistanceToStation = function(destinationStation) { 
-			var xDist = (destinationStation.xLoc - self.xLoc); 
-			var yDist = (destinationStation.yLoc - self.yLoc); 
+		self.getDistanceToAirport = function(destinationAirport) { 
+			var xDist = (destinationAirport.xLoc - self.xLoc); 
+			var yDist = (destinationAirport.yLoc - self.yLoc); 
 			var distance = Math.sqrt(xDist*xDist + yDist*yDist); 
 			return distance; 
 		}; 
@@ -328,116 +319,118 @@
 	
 	};
 	
-	function StationsViewModel() {
+	function AirportsViewModel() {
 		var self = this; 
-		self.stations = ko.observableArray(); 
-		self.stationsLimit = 10; 
+		self.Airports = ko.observableArray(); 
+		self.AirportsLimit = 10; 
 		//fields for adding
-		self.newName =ko.observable(); 
-		self.newTracks = ko.observable(); 
+		self.newName = ko.observable(); 
+		self.newGates = ko.observable(); 
 		self.newXLoc = ko.observable(); 
 		self.newYLoc = ko.observable(); 
-		self.newcargoSize = ko.observable(); 
+		self.newpassengerGainRate = ko.observable(); 
 		
 		//save to local storage
-		self.saveStations = function () { 
-			localStorage.setItem('stations', JSON.stringify(self.stations)); 
+		self.saveAirports = function () { 
+			localStorage.setItem('Airports', JSON.stringify(self.Airports)); 
 		} ;
 		//get from local storage
-		self.loadTrains = function() {
-			var retrievedObject = localStorage.getItem('stations');
-			self.stations = JSON.parse(retrievedObject);
+		self.loadPlanes = function() {
+			var retrievedObject = localStorage.getItem('Airports');
+			self.Airports = JSON.parse(retrievedObject);
 		}; 
 		
-		self.addStation = function() {
+		self.addAirport = function() {
 		//check for existing, autogen id? 
-			self.stations.push(new Station(self.newName(), self.newTracks(), self.newXLoc(), self.newYLoc(), self.newcargoSize())); 
+			self.Airports.push(new Airport(self.newName(), self.newGates(), self.newXLoc(), self.newYLoc(), self.newpassengerGainRate())); 
 		};
 		
-		self.openOrClose = function(thisStation) { 
-			thisStation.toggleState(); 
+		self.openOrClose = function(thisAirport) { 
+			thisAirport.toggleState(); 
 		} 
 		
-		self.removeStation = function(thisStation) { 	
-			self.stations.remove(thisStation); 
+		self.removeAirport = function(thisAirport) { 	
+			self.Airports.remove(thisAirport); 
 		};
 		
-		self.addStationsAllowed = ko.computed(function() { 
-			return self.stations().length < self.stationsLimit; 
+		self.addAirportsAllowed = ko.computed(function() { 
+			return self.Airports().length < self.AirportsLimit; 
 		});
 		
-		self.getStation = function(stationName) { 
-			return ko.utils.arrayFirst(self.stations(), function(station) {
-				return station.name() === stationName; 
+		self.getAirport = function(AirportName) { 
+			return ko.utils.arrayFirst(self.Airports(), function(Airport) {
+				return Airport.name() === AirportName; 
 			}); 				
 		}; 
 		
-		self.findNearestStationNeedingCargo = function(currentStation) { 
-			//TODO: get nearest
-			var station= ko.utils.arrayFirst(self.stations(), function(station) {
-				return station.hasCargoRoom(); 
-			}); 
-			return station ; 
-		} 
+		self.findNearestAirport = function() { }; //todo
 		
+		//random finder - replace this later
+		self.findRandomDestinationAirport = function(AirportName) { 
+			var otherAirports = ko.utils.arrayFilter(self.Airports(), function(Airport) {
+				return Airport.name() != AirportName; 
+			});
+			var randNum=Math.floor(Math.random() * otherAirports.length)
+			return otherAirports[randNum]; 
+		};
 	};
-	var stationsModel = new StationsViewModel; 
-	ko.applyBindings(stationsModel, document.getElementById("StationsViewContainer")); 
+	var AirportsModel = new AirportsViewModel; 
+	ko.applyBindings(AirportsModel, document.getElementById("AirportsViewContainer")); 
 	
 	</script> 
-	<!-- **** TRAINS **** --> 
-	<!-- trains view --> 
-	<div id="trainsViewContainer">
-		<h2>Your trains (<span data-bind="text: trains().length"></span>)</h2>
-		<table border=1 data-bind="visible: trains().length > 0">
+	<!-- **** PlaneS **** --> 
+	<!-- Planes view --> 
+	<div id="PlanesViewContainer">
+		<h2>Your Planes (<span data-bind="text: Planes().length"></span>)</h2>
+		<table border=1 data-bind="visible: Planes().length > 0">
 			<thead><tr>
-				<th>Train name</th><th>Model</th><th>Condition</th><th>Cargo Capacity</th><th>Free Cargo Space</th><th>Current Station</th><th>Controls</th>
+				<th>Plane name</th><th>Model</th><th>Capacity</th><th>Passenger Space</th><th>Current Airport</th><th>Destination</th><th>Controls</th>
 			</tr></thead>
-			<tbody data-bind="foreach: trains">
+			<tbody data-bind="foreach: Planes">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: model" /></td>
 					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
-					<td data-bind="text: condition"></td>
-					<td data-bind="text: cargoSpace"></td> 
-					<td data-bind="text: freeCargoSpace"></td> 
-					<td data-bind="text: currentStation().name"></td> 
-					<td><a href="#" data-bind="click: $root.removeTrain">Retire</a></td>
+					<td data-bind="text: capacity"></td> 
+					<td data-bind="text: freeCapacity"></td> 
+					<td data-bind="if:currentAirport()"><span data-bind="text:currentAirport().name"></span></td> 
+					<td data-bind="if:destinationAirport()"><span data-bind="text:destinationAirport().name"></span></td> 
+					<td><a href="#" data-bind="click: $root.removePlane">Retire</a></td>
 				</tr>    
 			</tbody>
 		</table>
-		Enter a New Train
-		<form data-bind="submit:addTrain">
+		Enter a New Plane
+		<form data-bind="submit:addPlane">
 			<table>
-				<td><input data-bind="value: newName" placeholder="Train Name" /></td>
-				<td><input data-bind="value: newModel" placeholder="Train Model" /></td><!--select-->
+				<td><input data-bind="value: newName" placeholder="Plane Name" /></td>
+				<td><input data-bind="value: newModel" placeholder="Plane Model" /></td><!--select-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
-				<td><input data-bind="value: newStartStation" placeholder="Start Station"/></td><!--select-->
-				<!-- enable = funds for this train < my funds   enable: trains().length < 5--> 
+				<td><input data-bind="value: newStartAirport" placeholder="Start Airport"/></td><!--select-->
+				<!-- enable = funds for this Plane < my funds   enable: Planes().length < 5--> 
 			</table>
-			<button type="submit">Buy train</button>
+			<button type="submit">Buy Plane</button>
 		</form>
-		<button data-bind="click: saveTrains(), enable: trains().length > 0">Save To Local Storage</button>
+		<button data-bind="click: savePlanes(), enable: Planes().length > 0">Save To Local Storage</button>
 		
 	</div>
-	<!-- trains objects & viewmodel --> 
+	<!-- Planes objects & viewmodel --> 
 	<script type="text/javascript">
-	function Train(name, model, purchaseDate, startStation)
+	function Plane(name, model, purchaseDate, startAirport)
 	{
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.model = ko.observable(model); 
 		self.speed = 20; //todo: base on model
 		self.purchaseDate = purchaseDate; 
-		self.startStation = startStation; 
-		self.currentStation = ko.observable(startStation);
-		self.destinationStation = ko.observable(null); 
-		self.currentXLoc = self.currentStation().xLoc; 
-		self.currentYLoc = self.currentStation().yLoc; 
+		self.startAirport = startAirport; 
+		self.currentAirport = ko.observable(startAirport);
+		self.destinationAirport = ko.observable(null); 
+		self.currentXLoc = self.currentAirport().xLoc; 
+		self.currentYLoc = self.currentAirport().yLoc; 
 		self.lastRepairDate = 6;
 		self.tuneUpOrdered = false; 
-		self.cargoSpace = 5; 
-		self.cargoOnBoard = ko.observable(5); 
+		self.capacity = 15; 
+		self.passengersOnBoard = ko.observable(5); 
 		self.travelPoints = []; 
 		
 		self.condition = ko.computed(function() { 
@@ -447,101 +440,120 @@
 			return repairDuration * self.lastRepairDate; 
 		}); 
 		
-		self.freeCargoSpace = ko.computed(function() { 
-			return self.cargoSpace - self.cargoOnBoard(); 
+		self.freeCapacity = ko.computed(function() { 
+			return self.capacity - self.passengersOnBoard(); 
 		}); 
 		
 		self.update = function() { 
 			//move
-			//TODO: what makes a train go somewhere? 
-			if (self.cargoOnBoard() > 0) 
+			//TODO: rework this, pub-sub? 
+			if (self.passengersOnBoard() > 0) 
 			{
 				//null to start? 
-				if (!self.destinationStation()) 
-					self.destinationStation(stationsModel.findNearestStationNeedingCargo(self.currentStation())); 
+				if (!self.destinationAirport()) 
+					//self.destinationAirport(AirportsModel.findNearestAirportNeedingPassengers(self.currentAirport())); 
+					self.destinationAirport(AirportsModel.findRandomDestinationAirport(self.currentAirport().name())); 
 				//if we have't reached it yet, keep going
-				if (self.destinationStation() && self.currentStation().name() != self.destinationStation().name()) 
+				if (self.destinationAirport() && self.currentAirport().name() != self.destinationAirport().name()) 
 				{
 					//travel to destination
 					if (self.travelPoints.length == 0)
 					{
-						self.travelPoints = bline(self.currentXLoc, self.currentYLoc, self.destinationStation().xLoc, self.destinationStation().yLoc); 
+						self.travelPoints = bline(self.currentXLoc, self.currentYLoc, self.destinationAirport().xLoc, self.destinationAirport().yLoc); 
 					}
 					else
 					{
 						//get the next two points from the start of the array
 						var nextX = self.travelPoints.shift(); 
 						var nextY = self.travelPoints.shift(); 
+						//put the plane there
 						self.currentXLoc = nextX; 
 						self.currentYLoc = nextY; 
 						console.log(self.name() + "[" + self.currentXLoc + "," + self.currentYLoc + "]"); 
-						if (self.currentXLoc === self.destinationStation().xLoc && self.currentYLoc === self.destinationStation().yLoc)
-							self.currentStation(self.destinationStation()); //todo: take time based on speed
+						if (self.currentXLoc === self.destinationAirport().xLoc && self.currentYLoc === self.destinationAirport().yLoc)
+							self.currentAirport(self.destinationAirport()); //todo: take time based on speed
 					}
 					
 				}
 				else //we're at the destination
 				{
-					//transfer cargo
-					self.currentStation().cargoOnHand(self.currentStation().cargoOnHand() + self.cargoOnBoard()); //todo: take into account station capacity
-					self.cargoOnBoard(0); 
-					self.destinationStation(null); //todo: pick up cargo to trigger move
+					//release them all? once they can connect, add some to the station) 
+					//self.currentAirport().passengersWaiting(self.currentAirport().passengersWaiting() + self.passengersOnBoard()); //todo: take into account Airport capacity
+					self.passengersOnBoard(0); 
+					self.destinationAirport(null); //todo: pick up Passengers to trigger move
 				}
 			}
-			//if (stationsModel.getStation(self.startStation)
-			//pickup/move cargo
+			else //nobody on board, start loading
+			{
+				var airportPassengers = self.currentAirport().passengersWaiting(); 
+				if (airportPassengers > 0)
+				{
+					if (airportPassengers >= self.capacity) 
+					{
+						self.passengersOnBoard(self.capacity);
+						self.currentAirport().passengersWaiting(airportPassengers - self.capacity); 
+					}
+					else
+					{
+						self.passengersOnBoard(airportPassengers); 
+						self.currentAirport().passengersWaiting(0); 
+					}
+				}
+			}
+			//if (AirportsModel.getAirport(self.startAirport)
+			//pickup/move Passengers
 			
 		}
 	
 	};
 	
-	function trainsViewModel() {
+	function PlanesViewModel() {
 		var self = this; 
-		self.trains = ko.observableArray(); 
-		self.trainsLimit = 10; 
+		self.Planes = ko.observableArray(); 
+		self.PlanesLimit = 10; 
 		//fields for adding
 		self.newName =ko.observable(); 
 		self.newModel = ko.observable(); 
-		self.newStartStation = ko.observable(); 
+		self.newStartAirport = ko.observable(); 
 		
 		
 		//save to local storage
-		self.saveTrains = function () { 
-			localStorage.setItem('trains', JSON.stringify(self.trains)); 
+		self.savePlanes = function () { 
+			localStorage.setItem('Planes', JSON.stringify(self.Planes)); 
 		} ;
 		//get from local storage
-		self.loadTrains = function() {
-			var retrievedObject = localStorage.getItem('trains');
-			self.trains = JSON.parse(retrievedObject);
+		self.loadPlanes = function() {
+			var retrievedObject = localStorage.getItem('Planes');
+			self.Planes = JSON.parse(retrievedObject);
 		}; 
 		
-		self.addTrain = function() {
+		self.addPlane = function() {
 		//check for existing, autogen id? 
-			self.trains.push(new Train(self.newName(), self.newModel(), "9/9/9", self.newStartStation())); 
+			self.Planes.push(new Plane(self.newName(), self.newModel(), "9/9/9", self.newStartAirport())); 
 		};
 		
-		self.removeTrain = function(thisTrain) { 	
-			self.trains.remove(thisTrain); 
+		self.removePlane = function(thisPlane) { 	
+			self.Planes.remove(thisPlane); 
 		};
 		
-		self.addTrainsAllowed = ko.computed(function() { 
-			return self.trains().length < self.trainsLimit; 
+		self.addPlanesAllowed = ko.computed(function() { 
+			return self.Planes().length < self.PlanesLimit; 
 		});
 		
-		self.getTrain = function(trainName) { 
-			return ko.utils.arrayFirst(self.trains(), function(train) {
-				return train.name() === trainName; 
+		self.getPlane = function(PlaneName) { 
+			return ko.utils.arrayFirst(self.Planes(), function(Plane) {
+				return Plane.name() === PlaneName; 
 			}); 				
 		}; 
 		
-		self.getTrainsAtStation = function(stationName) { 
-			return ko.utils.arrayFilter(self.trains(), function(train) {
-				return train.currentStation() === stationName; 
+		self.getPlanesAtAirport = function(AirportName) { 
+			return ko.utils.arrayFilter(self.Planes(), function(Plane) {
+				return Plane.currentAirport() === AirportName; 
 			}); 				
 		}; 
 	};
-	var trainsModel = new trainsViewModel; 
-	ko.applyBindings(trainsModel, document.getElementById("trainsViewContainer")); 
+	var PlanesModel = new PlanesViewModel; 
+	ko.applyBindings(PlanesModel, document.getElementById("PlanesViewContainer")); 
 	
 	//bresenham's line algorithm
 	function bline(x0, y0, x1, y1) {
@@ -567,12 +579,12 @@
 	<script type="text/javascript"> 
 		//what are we watching? 
 
-		stationsModel.stations.push(new Station("San Francisco","2",10,50,"50")); 
-		stationsModel.stations.push(new Station("New Orleans","2",20,70,"70"));
-		trainsModel.trains.push(new Train("TrainOne","ModelABC", "12/21/2000", stationsModel.getStation("San Francisco"))); 
-		trainsModel.trains.push(new Train("TrainTwo","ModelDDD", "12/21/2004", stationsModel.getStation("New Orleans"))); 
+		AirportsModel.Airports.push(new Airport("San Francisco","2",10,50,0)); 
+		AirportsModel.Airports.push(new Airport("New Orleans","2",20,70,0));
+		PlanesModel.Planes.push(new Plane("PlaneOne","ModelABC", "12/21/2000", AirportsModel.getAirport("San Francisco"))); 
+		PlanesModel.Planes.push(new Plane("PlaneTwo","ModelDDD", "12/21/2004", AirportsModel.getAirport("New Orleans"))); 
 		
-		wvmodel.timer().objectsToUpdate = {"stations": stationsModel.stations(), "trains" : trainsModel.trains()}; 
+		wvmodel.timer().objectsToUpdate = {"Airports": AirportsModel.Airports(), "Planes" : PlanesModel.Planes()}; 
 		//start me up
 		wvmodel.timer().startTimer();
 		
