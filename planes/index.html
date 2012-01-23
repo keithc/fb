@@ -4,7 +4,52 @@
 		<script src="js/knockout.2.0.0.js"></script> 
 		<script src="js/sammy.js"></script> 
 		
-		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<style type="text/css">
+			body {
+				font: 10px Verdana,Geneva,Arial,Helvetica,sans-serif;
+				margin: 11px;
+			}
+			#canvas { 
+				width:300px;
+				height:300px; 
+				float:left; 
+			}
+			.headerMenuBar { 
+				display:inline; 
+				padding-left:10px; 
+			}
+			.headerMenuBar li  {
+				display:inline-block; 
+			}
+
+			.button{ 
+				margin-right:5px; 
+				background-color: #339933;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				border: 2px solid #1F5C1F;
+				padding: 5px;
+				
+			}
+			.button on { 
+			} 
+			.button a { 
+				color:white; 
+				text-decoration:none; 
+			}
+
+			th { 
+				background-color: #CDC; 
+			} 
+			th, td { 
+				font-size:11px; 
+			}
+
+			div.textContainer { 
+				left:250px; 
+				float:right; 
+			}
+		</style> 
 	</head>
 <body>
 	<!--<hr>
@@ -191,6 +236,7 @@
 			<table>
 				<td><input data-bind="value: newName" placeholder="Airport Name" /></td>
 				<td><input data-bind="value: newGates" placeholder="Airport Gates" /></td><!--select-->
+				<td><input data-bind="value: newStartingPassengers" placeholder="Passengers to start with" /></td><!--select/consPlane-->
 				<td><input data-bind="value: newpassengerGainRate" placeholder="Passengers Gained/sec" /></td><!--select/consPlane-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
@@ -206,7 +252,7 @@
 	
 	<!-- Airports objects & viemodel --> 
 	<script type="text/javascript">
-	function Airport(name, gates, xLoc, yLoc, passengerGainRate)
+	function Airport(name, gates, xLoc, yLoc, startingPassengers, passengerGainRate)
 	{
 		var self=this; 
 		self.name = ko.observable(name); 
@@ -214,7 +260,7 @@
 		self.passengerGainRate = ko.observable(parseInt(passengerGainRate));  //todo: validate
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
-		self.passengersWaiting = ko.observable(60); 
+		self.passengersWaiting = ko.observable(startingPassengers); 
 		self.closed = ko.observable(false); 
 		self.PassengersReady = false; // use to ask for a Plane pickup
 		 
@@ -271,6 +317,7 @@
 		self.newXLoc = ko.observable(); 
 		self.newYLoc = ko.observable(); 
 		self.newpassengerGainRate = ko.observable(); 
+		self.newStartingPassengers = ko.observable(); 
 		
 		//save to local storage
 		self.saveAirports = function () { 
@@ -284,7 +331,7 @@
 		
 		self.addAirport = function() {
 		//check for existing, autogen id? 
-			self.airports.push(new Airport(self.newName(), self.newGates(), self.newXLoc(), self.newYLoc(), self.newpassengerGainRate())); 
+			self.airports.push(new Airport(self.newName(), self.newGates(), self.newXLoc(), self.newYLoc(), self.newStartingPassengers(), self.newpassengerGainRate())); 
 		};
 		
 		self.openOrClose = function(thisAirport) { 
@@ -310,7 +357,7 @@
 		//random finder - replace this later
 		self.findRandomDestinationAirport = function(AirportName) { 
 			var otherAirports = ko.utils.arrayFilter(self.airports(), function(Airport) {
-				return Airport.name() != AirportName; 
+				return Airport.name() != AirportName && !Airport.closed(); 
 			});
 			var randNum=Math.floor(Math.random() * otherAirports.length)
 			return otherAirports[randNum]; 
@@ -358,13 +405,13 @@
 	</div>
 	<!-- Planes objects & viewmodel --> 
 	<script type="text/javascript">
-	function Plane(name, model, purchaseDate, startAirport)
+	function Plane(name, model, capacity, startAirport)
 	{
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.model = ko.observable(model); 
 		self.speed = 20; //todo: base on model
-		self.purchaseDate = purchaseDate; 
+		self.purchaseDate = ""; 
 		self.startAirport = startAirport; 
 		self.currentAirport = ko.observable(startAirport);
 		self.destinationAirport = ko.observable(null); 
@@ -372,7 +419,7 @@
 		self.currentYLoc = self.currentAirport().yLoc; 
 		self.lastRepairDate = 6;
 		self.tuneUpOrdered = false; 
-		self.capacity = 15; 
+		self.capacity = capacity; 
 		self.passengersOnBoard = ko.observable(5); 
 		self.travelPoints = []; 
 		
@@ -525,12 +572,12 @@
 	</script> 
 
 	<script type="text/javascript"> 
-		AirportsModel.airports.push(new Airport("San Francisco","2",2,10,0)); 
-		AirportsModel.airports.push(new Airport("New Orleans","2",10,20,0));
-		AirportsModel.airports.push(new Airport("New York","2",17,5,0));
-		PlanesModel.planes.push(new Plane("PlaneOne","ModelABC", "12/21/2000", AirportsModel.getAirport("San Francisco"))); 
-		PlanesModel.planes.push(new Plane("PlaneTwo","ModelDDD", "12/21/2004", AirportsModel.getAirport("New Orleans"))); 
-		PlanesModel.planes.push(new Plane("PlaneThree","ModelDDD", "12/21/2004", AirportsModel.getAirport("New York"))); 
+		AirportsModel.airports.push(new Airport("San Francisco","2",2,10,60,1)); 
+		AirportsModel.airports.push(new Airport("New Orleans","2",10,20,55,1));
+		AirportsModel.airports.push(new Airport("New York","2",17,5,100,2));
+		PlanesModel.planes.push(new Plane("PlaneOne","ModelABC", "20", AirportsModel.getAirport("San Francisco"))); 
+		PlanesModel.planes.push(new Plane("PlaneTwo","ModelDDD", "35", AirportsModel.getAirport("New Orleans"))); 
+		PlanesModel.planes.push(new Plane("PlaneThree","ModelDDD", "35", AirportsModel.getAirport("New York"))); 
 		
 		//what are we watching? 
 		wvmodel.timer().objectsToUpdate = {"Airports": AirportsModel.airports(), "Planes" : PlanesModel.planes()}; 
@@ -581,7 +628,7 @@
 	function drawAirports()
 	{
 		$.each(AirportsModel.airports(), function (index, item) {
-			console.log("drawing: " + item.name()); 
+			//console.log("drawing: " + item.name()); 
 			//temp - for scaling
 			var x= item.xLoc*_scaleValue;
 			var y= item.yLoc*_scaleValue; 
