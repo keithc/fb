@@ -1,28 +1,12 @@
 body {
-    background: none repeat scroll 0 0 #FFFFFF;
-    color: #000000;
-    font: 12px Verdana,Geneva,Arial,Helvetica,sans-serif;
-    margin: 10px;
-    padding: 0;
+    font: 10px Verdana,Geneva,Arial,Helvetica,sans-serif;
+    margin: 11px;
 }
-table, td, a {
-    color: #000000;
-    font: 12px Verdana,Geneva,Arial,Helvetica,sans-serif;
+#canvas { 
+	width:300px;
+	height:300px; 
+	float:left; 
 }
-h1 {
-    font: 18px Verdana,Geneva,Arial,Helvetica,sans-serif;
-    margin: 0 0 5px;
-}
-h2 {
-    font: 16px Verdana,Geneva,Arial,Helvetica,sans-serif;
-    margin: 0 0 5px;
-}
-h3 {
-    color: #008000;
-    font: 13px Verdana,Geneva,Arial,Helvetica,sans-serif;
-    margin: 0 0 15px;
-}
-
 .headerMenuBar { 
 	display:inline; 
 	padding-left:10px; 
@@ -31,9 +15,6 @@ h3 {
 	display:inline-block; 
 }
 
-.infoBox { 
-
-} 
 .button{ 
 	margin-right:5px; 
 	background-color: #339933;
@@ -50,130 +31,14 @@ h3 {
 	text-decoration:none; 
 }
 
-
-#mainPane{
-	margin-top:20px;
+th { 
+	background-color: #CDC; 
+} 
+th, td { 
+	font-size:11px; 
 }
 
-div.containerBox {
-	border: 1px solid #CC9966;
-	padding: 2px; 
-	width: auto; 
-}
-
-div.tableContainer {
-    border: 1px solid #996633;
-    clear: both;
-    height: auto; 
-	max-height:285px; 
-    overflow: hidden;
-	margin-bottom: 15px; 
-	display:inline-block; 
-	width:auto; 
-}
-
-div.tableContainer table {
-    float: left;
-    width: auto;
-}
-
-thead.fixedHeader tr {
-    position: relative;
-	width:100%;
-}
-/* taking this out when switching to KO - not sure why it's causing issues yet*/
-thead.fixedHeader tr {
-    display: block;
-}
-thead.fixedHeader th {
-    background: none repeat scroll 0 0 #CC9966;
-    border-left: 1px solid #EEBB88;
-    border-right: 1px solid #BB7744;
-    border-top: 1px solid #EEBB88;
-    font-weight: normal;
-    padding: 4px 15px;
-    text-align: left;
-}
-
-thead.fixedHeader th, tbody.scrollContent td {
-	width:150px; 
-}
-
-thead.fixedHeader th.narrow, tbody.scrollContent td.narrow{
-	width:80px; 
-}
-	
-/* target individual cells
-thead.fixedHeader th {
-    width: 200px;
-}
-thead.fixedHeader th + th {
-    width: 240px;
-}
-thead.fixedHeader th + th + th {
-    width: 316px;
-}*/
-thead.fixedHeader a, thead.fixedHeader a:link, thead.fixedHeader a:visited {
-    color: #FFFFFF;
-    display: block;
-    text-decoration: none;
-    width: 100%;
-}
-thead.fixedHeader a:hover {
-    color: #FFFFFF;
-    display: block;
-    text-decoration: underline;
-    width: 100%;
-}
-tbody.scrollContent {
-    display: block;
-	height:auto; 
-    max-height: 262px;
-    overflow: auto;
-    width: 100%;
-}
-tbody.scrollContent td, tbody.scrollContent tr.normalRow td {
-	border-left: 1px solid #EEBB88;
-    border-right: 1px solid #BB7744;
-    border-top: 1px solid #EEBB88;
-	border-bottom: 1px solid #EEBB88;
-    padding: 2px 15px 3px 15px;
-}
-tbody.scrollContent tr.alternateRow td {
-	border-left: 1px solid #EEBB88;
-    border-right: 1px solid #BB7744;
-    border-top: 1px solid #EEBB88;
-	border-bottom: 1px solid #EEBB88;
-    padding: 2px 15px 3px 15px;
-}
-/*
-tbody.scrollContent td {
-    width: 200px;
-}
-tbody.scrollContent td + td {
-    width: 240px;
-}
-tbody.scrollContent td + td + td {
-    width: 300px;
-}
-*/
-ul.myTable {
-	width:500px; 
-	background:#333;
-	float:left; 
-	clear:left; 
-	margin:0; 
-	padding:0; 
-	border: 1px solid #CCC;
-}
-ul.myTable li{
-	padding: 3px 6px; 
-	display:block; 
-	list-style:none; 
-	float:none; 
-	width: auto; 
-}
-
-ul.myTable.tableHeader {
-	color:white; 
+div.textContainer { 
+	left:250px; 
+	float:right; 
 }

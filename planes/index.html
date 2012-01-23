@@ -5,7 +5,6 @@
 		<script src="js/sammy.js"></script> 
 		
 		<link rel="stylesheet" type="text/css" href="css/main.css" />
-		<link rel="stylesheet" type="text/css" href="css/nav.css"/> 
 	</head>
 <body>
 	<!--<hr>
@@ -17,14 +16,9 @@
 	columns: <span data-bind="text:ko.toJSON(templateColumns)"></span>
 	<hr>-->
 
-	<!-- Menu -->
-	<div id="menuContainer">
-
-	</div>
+	<canvas id="canvas" width="300", height="300"></canvas> 
 	
-	
-	<!-- function here to lookup data for boilerplate messaging: getScreenData(...) = {header:'blah', footer:'blah'}--> 
-	
+	<div class="textContainer">
 	<!-- world data view table --> 
 	<div id="worldViewContainer">
 		<!--<ul><li data-bind="text:ko.toJSON(timer)"></li><li><a href="#" data-bind="click:toggleTimer">Start/Stop</a></li></ul>-->
@@ -32,12 +26,6 @@
 			<li class="button"><a href="#" data-bind="click:toggleTimer, css: {on: timer().running }">Start/Stop</a></li>
 			Running: <li class="infoBox" data-bind="text:timer().running"></li>
 		</ul>
-		<!--<ul class="menu" data-bind="foreach: menuItems">
-			<li data-bind="text: $data,
-                   css: { selected: $data == $root.selectedMenuItem() },
-                   click: $root.goToScreen"></li>
-		</ul>--> <!--removing for now til i need sammy again--> 
-		
 		
 		<table>
 			<thead><tr data-bind="template:{name:'tableHeader', foreach:templateColumns}"></tr></thead>
@@ -93,7 +81,8 @@
 					//{
 					//	console.log(key, prop); 
 					//}
-				}
+				} 
+				drawWorldObjects(); 
 			}
 		} 
 		
@@ -145,54 +134,7 @@
 		//Behaviors
 		self.goToScreen = function (menuItem) { location.hash = menuItem; }; 
 
-		// Client-side routes
-		Sammy(function (context) {
-			this.get('#:menuItem', function () {
-				var selectedItem = this.params.menuItem; 
-				self.selectedMenuData(null);
-
-				if (selectedItem === 'Home')  //more for things that aren't loading data? 
-				{
-					self.selectedMenuItem(selectedItem); 
-					self.selectedMenuData([{"info": "Home Data here"}]); 
-					return false;
-				}
-					
-				//only do this for things i know how to handle
-				//if (!(self.menuItems.contains(this.params.menuItem)))
-				//{
-				//	return false; 
-				//} 
-				
-				//get file name
-				var dataFile = selectedItem.toLowerCase() + '.json';  
-				console.log(dataFile); 
-				//todo - cache these
-				$.ajax({
-          				url: 'data/' + dataFile,
-          				dataType: 'json',
-          				success: function(items) {
-							//alert ("updating menu item to " + selectedItem); 
-							self.selectedMenuItem(selectedItem);
-							
-							//alert ("updating menu data") ; 
-							//set the view & data //todo - switch view when caching. error handle. 
-							self.selectedMenuData(items); 
-         			 }
-        		});
-				//$.get("/mail", { folder: this.params.folder }, self.selectedFolderData);
-			});
-			
-			this.get('#:menuItem/:itemId', function () {
-				self.selectedMenuItem(this.params.menuItem);
-				self.selectedMenuData(null);
-				//$.get("/mail", { mailId: this.params.mailId }, self.selectedMailData);
-			});
-			
-			//home screen
-			//this.get('', function () { this.app.runRoute('get', '#Inbox') });
-			
-		}).run(); 
+		
 		
 	}
 	var wvmodel = new WorldViewModel;
@@ -226,12 +168,12 @@
 	<!-- **** AirportS **** --> 
 	<!-- Airports view --> 
 	<div id="AirportsViewContainer">
-		<h2>Airports(<span data-bind="text: Airports().length"></span>)</h2>
-		<table border=1 data-bind="visible: Airports().length > 0">
+		<h2>Airports(<span data-bind="text: airports().length"></span>)</h2>
+		<table border=1 data-bind="visible: airports().length > 0">
 			<thead><tr>
 				<th>Airport Name</th><th>Gates</th><th>Passengers Waiting</th><th>Location</th><th>Planes at Airport</th><th>Closed?</th><th>Controls</th>
 			</tr></thead>
-			<tbody data-bind="foreach: Airports">
+			<tbody data-bind="foreach: airports">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: gates" /></td>
@@ -244,7 +186,7 @@
 				</tr>    
 			</tbody>
 		</table>
-		Enter a New Plane
+		<h2>Enter a New Airport</h2>
 		<form data-bind="submit:addAirport">
 			<table>
 				<td><input data-bind="value: newName" placeholder="Airport Name" /></td>
@@ -253,11 +195,11 @@
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
 				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
-				<!-- enable = funds for this Plane < my funds   enable: Planes().length < 5--> 
+				<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
 			</table>
 			<button type="submit">Add Airport</button>
 		</form>
-		<button data-bind="click: saveAirports(), enable: Airports().length > 0">Save To Local Storage</button>
+		<button data-bind="click: saveAirports(), enable: airports().length > 0">Save To Local Storage</button>
 		
 	</div>
 	
@@ -269,7 +211,7 @@
 		var self=this; 
 		self.name = ko.observable(name); 
 		self.gates = ko.observable(gates); 
-		self.passengerGainRate = ko.observable(passengerGainRate); 
+		self.passengerGainRate = ko.observable(parseInt(passengerGainRate));  //todo: validate
 		self.xLoc = xLoc; 
 		self.yLoc = yLoc;
 		self.passengersWaiting = ko.observable(60); 
@@ -321,8 +263,8 @@
 	
 	function AirportsViewModel() {
 		var self = this; 
-		self.Airports = ko.observableArray(); 
-		self.AirportsLimit = 10; 
+		self.airports = ko.observableArray(); 
+		self.airportsLimit = 10; 
 		//fields for adding
 		self.newName = ko.observable(); 
 		self.newGates = ko.observable(); 
@@ -337,12 +279,12 @@
 		//get from local storage
 		self.loadPlanes = function() {
 			var retrievedObject = localStorage.getItem('Airports');
-			self.Airports = JSON.parse(retrievedObject);
+			self.airports = JSON.parse(retrievedObject);
 		}; 
 		
 		self.addAirport = function() {
 		//check for existing, autogen id? 
-			self.Airports.push(new Airport(self.newName(), self.newGates(), self.newXLoc(), self.newYLoc(), self.newpassengerGainRate())); 
+			self.airports.push(new Airport(self.newName(), self.newGates(), self.newXLoc(), self.newYLoc(), self.newpassengerGainRate())); 
 		};
 		
 		self.openOrClose = function(thisAirport) { 
@@ -350,15 +292,15 @@
 		} 
 		
 		self.removeAirport = function(thisAirport) { 	
-			self.Airports.remove(thisAirport); 
+			self.airports.remove(thisAirport); 
 		};
 		
 		self.addAirportsAllowed = ko.computed(function() { 
-			return self.Airports().length < self.AirportsLimit; 
+			return self.airports().length < self.airportsLimit; 
 		});
 		
 		self.getAirport = function(AirportName) { 
-			return ko.utils.arrayFirst(self.Airports(), function(Airport) {
+			return ko.utils.arrayFirst(self.airports(), function(Airport) {
 				return Airport.name() === AirportName; 
 			}); 				
 		}; 
@@ -367,7 +309,7 @@
 		
 		//random finder - replace this later
 		self.findRandomDestinationAirport = function(AirportName) { 
-			var otherAirports = ko.utils.arrayFilter(self.Airports(), function(Airport) {
+			var otherAirports = ko.utils.arrayFilter(self.airports(), function(Airport) {
 				return Airport.name() != AirportName; 
 			});
 			var randNum=Math.floor(Math.random() * otherAirports.length)
@@ -379,38 +321,39 @@
 	
 	</script> 
 	<!-- **** PlaneS **** --> 
+	<hr/>
 	<!-- Planes view --> 
 	<div id="PlanesViewContainer">
-		<h2>Your Planes (<span data-bind="text: Planes().length"></span>)</h2>
-		<table border=1 data-bind="visible: Planes().length > 0">
+		<h2>Planes (<span data-bind="text: planes().length"></span>)</h2>
+		<table border=1 data-bind="visible: planes().length > 0">
 			<thead><tr>
-				<th>Plane name</th><th>Model</th><th>Capacity</th><th>Passenger Space</th><th>Current Airport</th><th>Destination</th><th>Controls</th>
+				<th>Plane name</th><th>Model</th><th>Capacity</th><th>On Board</th><th>Current/Last Airport</th><th>Destination</th><th>Controls</th>
 			</tr></thead>
-			<tbody data-bind="foreach: Planes">
+			<tbody data-bind="foreach: planes">
 				<tr>
 					<td><span data-bind="text: name" /></td>
 					<td><span data-bind="text: model" /></td>
 					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 					<td data-bind="text: capacity"></td> 
-					<td data-bind="text: freeCapacity"></td> 
+					<td data-bind="text: passengersOnBoard"></td> 
 					<td data-bind="if:currentAirport()"><span data-bind="text:currentAirport().name"></span></td> 
 					<td data-bind="if:destinationAirport()"><span data-bind="text:destinationAirport().name"></span></td> 
 					<td><a href="#" data-bind="click: $root.removePlane">Retire</a></td>
 				</tr>    
 			</tbody>
 		</table>
-		Enter a New Plane
+		<h2>Enter a New Plane</h2>
 		<form data-bind="submit:addPlane">
 			<table>
 				<td><input data-bind="value: newName" placeholder="Plane Name" /></td>
 				<td><input data-bind="value: newModel" placeholder="Plane Model" /></td><!--select-->
 				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
 				<td><input data-bind="value: newStartAirport" placeholder="Start Airport"/></td><!--select-->
-				<!-- enable = funds for this Plane < my funds   enable: Planes().length < 5--> 
+				<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
 			</table>
-			<button type="submit">Buy Plane</button>
+			<button type="submit">Add Plane</button>
 		</form>
-		<button data-bind="click: savePlanes(), enable: Planes().length > 0">Save To Local Storage</button>
+		<button data-bind="click: savePlanes(), enable: planes().length > 0">Save To Local Storage</button>
 		
 	</div>
 	<!-- Planes objects & viewmodel --> 
@@ -451,8 +394,11 @@
 			{
 				//null to start? 
 				if (!self.destinationAirport()) 
-					//self.destinationAirport(AirportsModel.findNearestAirportNeedingPassengers(self.currentAirport())); 
+				{
+					//find a destination
 					self.destinationAirport(AirportsModel.findRandomDestinationAirport(self.currentAirport().name())); 
+					console.log(self.name() + " - now departing for " + self.destinationAirport().name()); 
+				}
 				//if we have't reached it yet, keep going
 				if (self.destinationAirport() && self.currentAirport().name() != self.destinationAirport().name()) 
 				{
@@ -471,7 +417,9 @@
 						self.currentYLoc = nextY; 
 						console.log(self.name() + "[" + self.currentXLoc + "," + self.currentYLoc + "]"); 
 						if (self.currentXLoc === self.destinationAirport().xLoc && self.currentYLoc === self.destinationAirport().yLoc)
+						{
 							self.currentAirport(self.destinationAirport()); //todo: take time based on speed
+						}
 					}
 					
 				}
@@ -493,7 +441,7 @@
 						self.passengersOnBoard(self.capacity);
 						self.currentAirport().passengersWaiting(airportPassengers - self.capacity); 
 					}
-					else
+					else //more room than passengers available, take them all
 					{
 						self.passengersOnBoard(airportPassengers); 
 						self.currentAirport().passengersWaiting(0); 
@@ -509,8 +457,8 @@
 	
 	function PlanesViewModel() {
 		var self = this; 
-		self.Planes = ko.observableArray(); 
-		self.PlanesLimit = 10; 
+		self.planes = ko.observableArray(); 
+		self.planesLimit = 10; 
 		//fields for adding
 		self.newName =ko.observable(); 
 		self.newModel = ko.observable(); 
@@ -519,35 +467,35 @@
 		
 		//save to local storage
 		self.savePlanes = function () { 
-			localStorage.setItem('Planes', JSON.stringify(self.Planes)); 
+			localStorage.setItem('Planes', JSON.stringify(self.planes)); 
 		} ;
 		//get from local storage
 		self.loadPlanes = function() {
 			var retrievedObject = localStorage.getItem('Planes');
-			self.Planes = JSON.parse(retrievedObject);
+			self.planes = JSON.parse(retrievedObject);
 		}; 
 		
 		self.addPlane = function() {
 		//check for existing, autogen id? 
-			self.Planes.push(new Plane(self.newName(), self.newModel(), "9/9/9", self.newStartAirport())); 
+			self.planes.push(new Plane(self.newName(), self.newModel(), "9/9/9", self.newStartAirport())); 
 		};
 		
 		self.removePlane = function(thisPlane) { 	
-			self.Planes.remove(thisPlane); 
+			self.planes.remove(thisPlane); 
 		};
 		
 		self.addPlanesAllowed = ko.computed(function() { 
-			return self.Planes().length < self.PlanesLimit; 
+			return self.planes().length < self.PlanesLimit; 
 		});
 		
 		self.getPlane = function(PlaneName) { 
-			return ko.utils.arrayFirst(self.Planes(), function(Plane) {
+			return ko.utils.arrayFirst(self.planes(), function(Plane) {
 				return Plane.name() === PlaneName; 
 			}); 				
 		}; 
 		
 		self.getPlanesAtAirport = function(AirportName) { 
-			return ko.utils.arrayFilter(self.Planes(), function(Plane) {
+			return ko.utils.arrayFilter(self.planes(), function(Plane) {
 				return Plane.currentAirport() === AirportName; 
 			}); 				
 		}; 
@@ -564,7 +512,7 @@
 	 
 	  while (true) {
 		//setPixel(x0,y0);
-		$("#statusContainer").append(x0 + ',' + y0+'|') ; 
+//		$("#statusContainer").append(x0 + ',' + y0+'|') ; 
 		points.push(x0); 
 		points.push(y0); 
 		if (x0 === x1 && y0 === y1) break;
@@ -577,17 +525,89 @@
 	</script> 
 
 	<script type="text/javascript"> 
-		//what are we watching? 
-
-		AirportsModel.Airports.push(new Airport("San Francisco","2",10,50,0)); 
-		AirportsModel.Airports.push(new Airport("New Orleans","2",20,70,0));
-		PlanesModel.Planes.push(new Plane("PlaneOne","ModelABC", "12/21/2000", AirportsModel.getAirport("San Francisco"))); 
-		PlanesModel.Planes.push(new Plane("PlaneTwo","ModelDDD", "12/21/2004", AirportsModel.getAirport("New Orleans"))); 
+		AirportsModel.airports.push(new Airport("San Francisco","2",2,10,0)); 
+		AirportsModel.airports.push(new Airport("New Orleans","2",10,20,0));
+		AirportsModel.airports.push(new Airport("New York","2",17,5,0));
+		PlanesModel.planes.push(new Plane("PlaneOne","ModelABC", "12/21/2000", AirportsModel.getAirport("San Francisco"))); 
+		PlanesModel.planes.push(new Plane("PlaneTwo","ModelDDD", "12/21/2004", AirportsModel.getAirport("New Orleans"))); 
+		PlanesModel.planes.push(new Plane("PlaneThree","ModelDDD", "12/21/2004", AirportsModel.getAirport("New York"))); 
 		
-		wvmodel.timer().objectsToUpdate = {"Airports": AirportsModel.Airports(), "Planes" : PlanesModel.Planes()}; 
+		//what are we watching? 
+		wvmodel.timer().objectsToUpdate = {"Airports": AirportsModel.airports(), "Planes" : PlanesModel.planes()}; 
 		//start me up
 		wvmodel.timer().startTimer();
 		
+	</script>
+	</div> <!--text-->
+	<script type="text/javascript">
+	var _canvas, _canvasWidth, _canvasHeight, _context; //global canvas vars
+	var _scaleValue = 12; //temp, otherwise make the planes much faster
+	function initCanvas() {
+		_canvas = document.getElementById('canvas'); 
+		_context = _canvas.getContext('2d'); 
+		_canvasWidth = parseInt(_canvas.getAttribute("width")); 
+		_canvasHeight = parseInt(_canvas.getAttribute("height"));
+	}; 
+	function redrawCanvas() { //maybe...
+		
+	}
+	
+	//UI helpers
+	function drawDot(xLoc, yLoc, color) {
+		if (color === "") color="#000"; 
+		var radius = 1;
+		var centerX = xLoc;
+		var centerY = yLoc;
+		_context.moveTo(centerX, centerY - radius);
+		_context.quadraticCurveTo(centerX + radius, centerY - radius, centerX + radius, centerY);
+		_context.quadraticCurveTo(centerX + radius, centerY + radius, centerX, centerY + radius);
+		_context.quadraticCurveTo(centerX - radius, centerY + radius, centerX - radius, centerY);
+		_context.quadraticCurveTo(centerX - radius, centerY - radius, centerX, centerY - radius);
+		_context.closePath();
+		_context.fillStyle=color; 
+		_context.fill(); 
+	}
+	function drawLine(x1,y1,x2,y2) {
+		_context.moveTo(x1, y1); 
+		_context.lineTo(x2, y2); 
+		_context.stroke(); 
+	}
+	function writeCanvasText(textToWrite, font, xLoc, yLoc) {
+		if (font ==="") font = "10px san-serif"; 
+		_context.font = font; 
+		_context.fillText(textToWrite, xLoc, yLoc);
+	}
+	
+	function drawAirports()
+	{
+		$.each(AirportsModel.airports(), function (index, item) {
+			console.log("drawing: " + item.name()); 
+			//temp - for scaling
+			var x= item.xLoc*_scaleValue;
+			var y= item.yLoc*_scaleValue; 
+			drawDot(x, y, "#00F"); 
+			writeCanvasText(item.name(), "", x + (1.5), y + (1.5));
+		});
+	}
+	function drawPlanes() 
+	{
+		$.each(PlanesModel.planes(), function (index, item) {
+			//temp - for scaling
+			var x= item.currentXLoc*_scaleValue;
+			var y= item.currentYLoc*_scaleValue; 
+			drawDot(x, y, "#F00"); 
+			writeCanvasText(item.name(), "8px san-serif", x+(1.5), y-(5.5)); 
+		});
+	}
+	
+	function drawWorldObjects() 
+	{
+		_canvas.width = _canvasWidth; //force clear
+		drawAirports(); 
+		drawPlanes(); 
+	}
+	initCanvas(); 
+	drawWorldObjects();  
 	</script>
 </body>
 </html>
