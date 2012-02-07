@@ -1,5 +1,6 @@
 <html>
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
 	<script src="js/lib/underscore.js"></script> 
 	<script src="js/lib/backbone.js"></script>
 	
@@ -7,7 +8,17 @@
 </head>
 <body>
 <p>Grid with backbone.js</p>
-<div id="backboneGrid"></div>
+<div id="backboneGrid">
+	<script type="text/template" id="backBoneTableTemplate">
+		<table>
+			<tr><td>Name</td><td>Url</td><td>Attributes</td></tr>
+			<%= for (var index = 0; index < compareItems.length; index++){ %>\
+			<tr><td><%= name %></td><td><%= imageUrl %></td><td></td></tr>
+			<% } %>
+		</table>
+	</script>
+</div>
+
 
 <p>Grid with knockout.js</p>
 <div id="knockoutGrid"></div>
