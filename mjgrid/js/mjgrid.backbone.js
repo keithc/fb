@@ -4,8 +4,7 @@ CompareItem = Backbone.Model.extend({
 	defaults : { 
 		name: "not specified",
 		imageUrl: "not specified",
-		comparableAttributes: []
-	
+		comparableAttributes: {}
 	},
 
 	initialize : function() { 
@@ -34,28 +33,28 @@ CompareView = Backbone.View.extend({
 var compareItem1 = new CompareItem({
 	name: "Tablet1", 
 	imageUrl:"http://g-ecx.images-amazon.com/images/G/01/kindle/otter/dp/KO-slate-02-sm._V164817994_.jpg",
-	comparableAttributes: [{screensize:"12"},{speed:"fast"}]
+	comparableAttributes: {screensize:"12",speed:"fast"}
 }); 
 var compareItem2 = new CompareItem({
 	name: "Tablet2", 
 	imageUrl:"http://ecx.images-amazon.com/images/I/513JK4cckxL._SL500_AA300_.jpg",
-	comparableAttributes: [{screensize:"7"},{speed:"fast"}]
+	comparableAttributes: {screensize:"12",speed:"fast"}
 	//comparableAttributes: {"screensize":"12","speed":"fast"}
 }); 
 var compareItem3 = new CompareItem({
 	name: "Tablet3", 
 	imageUrl:"http://ecx.images-amazon.com/images/I/41yBWI7-OwL._SL500_AA300_.jpg",
-	comparableAttributes: [{screensize:"12"},{speed:"fast"}]
+	comparableAttributes: {screensize:"12",speed:"fast"}
 	
 }); 
 
 //JSON model data
 var compareJSON= [
 {
-	name:"Tablet4", imageUrl:"", comparableAttributes:[{screensize:"15"},{speed:"slow"}]
+	name:"Tablet4", imageUrl:"", comparableAttributes:{screensize:"15",speed:"slow"}
 },
 {
-	name:"Tablet5", imageUrl:"", comparableAttributes:[{screensize:"14"},{speed:"medium"}]
+	name:"Tablet5", imageUrl:"", comparableAttributes:{screensize:"14",speed:"medium"}
 }
 ];
 //from json

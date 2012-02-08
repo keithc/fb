@@ -11,20 +11,17 @@
 <div id="backboneGrid"></div>
 
 <script type="text/template" id="backboneTableTemplate">
-	<table>
+	<table border=1>
 		<tr><td>Name</td><td>Url</td><td>Attributes</td></tr>
 		
 		<% for (var i = 0; i < compareItems.length; i++){ %>
 		<% var thisItem = compareItems.models[i] %>
 		<tr>
 			<td><%= thisItem.attributes.name %></td>
-			<td><%= thisItem.attributes.imageUrl %></td>
-			<td><%if (thisItem.attributes.comparableAttributes.length > 0) {%>
+			<td><img src=<%= thisItem.attributes.imageUrl %>/></td>
+			<td><%for (var key in thisItem.attributes.comparableAttributes) {%>
 				<ul>
-					<%for (var j = 0; j < thisItem.attributes.comparableAttributes.length; j++){%>
-						<%var thisAttr = thisItem.attributes.comparableAttributes[j] %>
-						<li>thisAttr</li> 
-					<%}%>
+					<li><%=key %> : <%=thisItem.attributes.comparableAttributes[key]%></li> 
 				</ul>
 				<%}%>
 			</td></tr>
