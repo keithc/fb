@@ -1,4 +1,6 @@
-var CompareItem = Backbone.Model.extend({
+$(document).ready(function() { 
+
+CompareItem = Backbone.Model.extend({
 	defaults : { 
 		name: "not specified",
 		imageUrl: "not specified",
@@ -11,18 +13,18 @@ var CompareItem = Backbone.Model.extend({
 	} 
 }); 
 
-var CompareItems = Backbone.Collection.extend({
+CompareItems = Backbone.Collection.extend({
 	model : CompareItem
 });
 
-var CompareView = Backbone.View.extend({
+CompareView = Backbone.View.extend({
 	initialize: function() { 
 		this.render(); 
 	},
 	render: function() { 
-		var tmplHtml = $("#backBoneTemplate").html(); 
+		var tmplHtml = $("#backboneTableTemplate").html(); 
 		var template = _.template(tmplHtml); 
-		this.el.html (template); 
+		$(this.el).html(template); 
 	}
 }); 
 
@@ -57,7 +59,8 @@ var compareJSON= [
 }
 ];
 //from json
-var compareItems = new CompareItems(
+//not using a var so it'll be global and visible in the template, which is back in the calling html. kinda lame.
+compareItems = new CompareItems(
 _.map(compareJSON, function(item) { return item }));
 
 //add object literals
@@ -67,3 +70,5 @@ console.log (compareItems.models);
 
 var compareView = new CompareView({ el: $("#backboneGrid")}); 
 
+
+} );//doc ready

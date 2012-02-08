@@ -8,18 +8,34 @@
 </head>
 <body>
 <p>Grid with backbone.js</p>
-<div id="backboneGrid">
-	<script type="text/template" id="backBoneTableTemplate">
-		<table>
-			<tr><td>Name</td><td>Url</td><td>Attributes</td></tr>
-			<%= for (var index = 0; index < compareItems.length; index++){ %>\
-			<tr><td><%= name %></td><td><%= imageUrl %></td><td></td></tr>
-			<% } %>
-		</table>
-	</script>
-</div>
+<div id="backboneGrid"></div>
 
+<script type="text/template" id="backboneTableTemplate">
+	<table>
+		<tr><td>Name</td><td>Url</td><td>Attributes</td></tr>
+		
+		<% for (var i = 0; i < compareItems.length; i++){ %>
+		<% var thisItem = compareItems.models[i] %>
+		<tr>
+			<td><%= thisItem.attributes.name %></td>
+			<td><%= thisItem.attributes.imageUrl %></td>
+			<td><%if (thisItem.attributes.comparableAttributes.length > 0) {%>
+				<ul>
+					<%for (var j = 0; j < thisItem.attributes.comparableAttributes.length; j++){%>
+						<%var thisAttr = thisItem.attributes.comparableAttributes[j] %>
+						<li>thisAttr</li> 
+					<%}%>
+				</ul>
+				<%}%>
+			</td></tr>
+		<% } %>
+	</table>
+</script>
 
 <p>Grid with knockout.js</p>
 <div id="knockoutGrid"></div>
+
+
+
+
 </body>
