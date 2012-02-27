@@ -30,7 +30,7 @@ CompareView = Backbone.View.extend({
 
 
 //*** Loading data ***//
-var compareItem1 = new CompareItem({
+/*var compareItem1 = new CompareItem({
 	name: "Tablet1", 
 	imageUrl:"http://g-ecx.images-amazon.com/images/G/01/kindle/otter/dp/KO-slate-02-sm._V164817994_.jpg",
 	comparableAttributes: {screensize:"12",speed:"fast"}
@@ -46,15 +46,20 @@ var compareItem3 = new CompareItem({
 	imageUrl:"http://ecx.images-amazon.com/images/I/41yBWI7-OwL._SL500_AA300_.jpg",
 	comparableAttributes: {screensize:"12",speed:"fast"}
 	
-}); 
+}); */
 
 //JSON model data
 var compareJSON= [
 {
-	name:"Tablet4", imageUrl:"", comparableAttributes:{screensize:"15",speed:"slow"}
+	name: "Tablet3", 
+	imageUrl:"http://ecx.images-amazon.com/images/I/41yBWI7-OwL._SL500_AA300_.jpg",
+	comparableAttributes: {screensize:"12",speed:"fast"}
 },
 {
-	name:"Tablet5", imageUrl:"", comparableAttributes:{screensize:"14",speed:"medium"}
+	name:"Tablet4", imageUrl:"http://asset1.cbsistatic.com/cnwk.1d/sc/34093843-2-300-0.gif", comparableAttributes:{screensize:"15",speed:"slow"}
+},
+{
+	name:"Tablet5", imageUrl:"http://asset1.cbsistatic.com/cnwk.1d/sc/34093843-2-300-0.gif", comparableAttributes:{screensize:"14",speed:"medium"}
 }
 ];
 //from json
@@ -63,7 +68,7 @@ compareItems = new CompareItems(
 _.map(compareJSON, function(item) { return item }));
 
 //add object literals
-compareItems.add([compareItem1, compareItem2, compareItem3]); 
+//compareItems.add([compareItem1, compareItem2, compareItem3]); 
 
 console.log (compareItems.models); 
 
