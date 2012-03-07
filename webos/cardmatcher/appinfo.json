@@ -1,0 +1,9 @@
+{
+  "id": "com.palm.cardmatcher",
+  "version": "1.0.0",
+  "vendor": "HP",
+  "type": "web",
+  "main": "index.html",
+  "title": "Language Matching Cards",
+  "uiRevision": "2"
+}
