@@ -1,6 +1,23 @@
 
+
+Array.prototype.find = function (itemName){
+	for (index in this) {  
+		if (this[index].name === itemName) //TODO: types
+		{
+			return this[index]; 
+		}
+	}
+	return null; 
+};
+
+
 // Card object
 enyo.kind({
+  name: "MJCards.App",
+  kind: enyo.Control,
+  
+  
+  
   name: "MJCards.Card",
   kind: "Control",
   hidden: {
@@ -24,10 +41,35 @@ onclick: "flipCard",
 id:1,
 className: "box_round box_shadow box_gradient",
 toLocaleString : function() { 
-	var translation = languageCaptions.find(this.id); 
+	var translation = langcuageCaptions.find(this.id); 
 }
 }); 
 
+
+//language data - todo: move to a file
+
+//Language components
+enyo.kind({
+  name: "Languages", 
+  kind: enyo.Component, 
+  languages:[]
+});
+
+enyo.kind({
+  name: "LanguageUtil",
+  kind: enyo.Component,
+  create: function() { 
+	this.inherited(arguments); //do the base create
+	//now init
+	
+  },
+  components: [
+	{name: "Languages", kind:Languages},
+	{name: "LanguageCaptions", kind:"Component", languageCaptions:[]}
+  ]
+  
+ });
+  
 var Language= function (code, name){
 	this.code = code;
 	this.name = name; 
@@ -46,8 +88,8 @@ var LanguageCaption = function (name, languageTranslations) {
 } 
 
 languageCaptions = [];
-languageCaptions.push (new LanguageCaption(1,[{name: "en", word: "ball"}, {name:"es", word: "pelota"}])); 
-languageCaptions.push (new LanguageCaption(2,[{name: "en", word: "egg"}, {name:"es", word: "huevo"}])); 
+languageCaptions.push ({name:1, image:"images/soccerball.png", translations:[{name: "en", word: "ball"}, {name:"es", word: "pelota"}]}); 
+languageCaptions.push ({name:2, image:"images/egg.jpg", translations:[{name: "en", word: "egg"}, {name:"es", word: "huevo"}]}); 
 
 
 /* CARD DATA */
@@ -63,15 +105,22 @@ baseCards.push (new Card(2, "images/egg.jpg"));
 
 //todo: bring in the enyo.kind here
 var CardButton = function(card, languageCode){
+	var self = this; 
+
 	this.kind = enyo.Button; 
 	this.name = card.name; 
 	this.image = card.image; 
 	this.flipped = false; 
 	this.onclick = "flipCard"; 
 	this.className = "box_round box_shadow box_gradient";
-	var translation = languageCaptions.find(card.name); //name is really an id, but id is already used. the prototype array find uses name
-	var myCaption = translation.languageTranslations.find(languageCode); 
-	this.caption = myCaption.word; 
+	this.caption = ""; 
+	this.languageCode = languageCode;  //todo: optional? 
+	this.init = function(languageCode) { 	
+		//todo: namespace the globals
+		var translation = languageCaptions.find(card.name); //name is really an id, but id is already used. the prototype array find uses name
+		var myCaption = translation.languageTranslations.find(languageCode); 
+		self.caption = myCaption.word; 
+	}
 }
 
 cardButtons = [];
@@ -90,45 +139,50 @@ myCards.push( {kind:enyo.Button, name: 2, caption:" ", flipped: false, onclick:"
 
 /* END CARD DATA */
 
-Array.prototype.find = function (itemName){
-	for (index in this) {  
-		if (this[index].name.toLowerCase() === itemName.toLowerCase())
-		{
-			return this[index]; 
-		}
-	}
-	return null; 
-};
+
+//trying to use the kind to put into the component array, not working
+enyo.kind({
+	name: "MJCards.Button", 
+	kind: enyo.Button,
+	onclick: "flipCard", 
+	id:1,
+	className: "box_round box_shadow box_gradient"
+}); 
 
 // Main card object
 enyo.kind({
-  name: "MJCards.CardMatcher",
-  kind: enyo.VFlexBox,
+  name: "MJCards.App",
+  kind: enyo.Control,
   components: [
-	//language selectors
-	{kind: "RadioGroup", name: "lang1", onclick: "languageClick", 
-		components: [ 
-			{caption: "English", value: "English"},  //todo: loop through languages
-			{caption: "Spanish", value: "Spanish"},
-			{caption: "French", value: "French"},
-		]
-	},
-	{kind: "RadioGroup", name: "lang2", onclick: "languageClick", 
-		components: [ 
-			{caption: "English", value: "English"},
-			{caption: "Spanish", value: "Spanish"},
-			{caption: "French", value: "French"},
-		]
-	},
-	{name: "statusText", content: "left language"},
-	//cards  
-	{kind: "Control", layoutKind: "HFlexLayout",
-	  style: "width: 500px; height: 1000px;",
-	  pack: "center", align: "start", 
-	  components: cardButtons,
+	{kind: "VFlexBox", name: "mainScreen", components: [
+		//language selectors
+		{kind: "RadioGroup", name: "languageLeft", onclick: "languageClick", 
+			components: [ 
+				{caption: "English", value: "English"},  //todo: loop through languages, disable language2 entry for the one picked in language 1 (vice versa) 
+				{caption: "Spanish", value: "Spanish"},
+				{caption: "French", value: "French"},
+			]
+		},
+		{kind: "RadioGroup", name: "languageRight", onclick: "languageClick", 
+			components: [ 
+				{caption: "English", value: "English"},
+				{caption: "Spanish", value: "Spanish"},
+				{caption: "French", value: "French"},
+			]
+		},
+		{name: "statusText", content: "left language"},
+		//cards  
+		{kind: "Control", name:"CardRows", layoutKind: "HFlexLayout",
+		  style: "width: 500px; height: 200px;",
+		  pack: "center", align: "start", 
+		  components: [
+				
+			]
+	  //cardButtons,
 	  //components: [	{kind:enyo.Button, flipped:false, caption:"1", onclick:"flipCard", className: "box_round box_shadow box_gradient", image:"images/soccerball.png"},
 	//				{kind:enyo.Button, flipped:false, caption:"2", onclick:"flipCard", className: "box_round box_shadow box_gradient", image:"images/egg.jpg"}]
-	}
+		}
+	]}
   ],
   languageLeft: "en",
   languageRight: "es",
@@ -136,7 +190,7 @@ enyo.kind({
 	var lang = languages.find(inSender.getValue()); 
 	if (lang != undefined && lang.code != undefined) 
 	{ 
-		if (inSender.getName() === "lang1") 
+		if (inSender.getName() === "languageLeft") 
 		{
 			this.languageLeft = lang.code; 
 		}
@@ -146,18 +200,48 @@ enyo.kind({
 		}
 	}
 	this.$.statusText.setContent("Current selection: " + inSender.getValue());  //todo: how to get the caption? 
+	this.init(); 
   },
   flipCard: function(inSender) { 
 	if (inSender.flipped)
 	{
 		inSender.addStyles("background:url");
+		inSender.caption = " "; 
 	}
 	else
 	{
-		
-		inSender.caption = 
 		inSender.addStyles("background:url(" + inSender.image + "); background-position:center top fixed; background-repeat: no-repeat;");
+		inSender.content = inSender.captionText; 
 	}
+	inSender.render();
 	inSender.flipped=!inSender.flipped; 
-  } 
+  } ,
+  init : function ()
+  {
+	//create cards - TODO: math to put a number of cards per row
+	this.$.CardRows.children = []; //clear the rows
+	var maxCardsPerRow = 5; 
+	var maxCards = 10; //todo: smarter math/config - 10 will generate 20 cards, pick at random from the data
+	var rowCounter =0; 
+	var currentRow =null; 
+	
+	for (var i = 0; i < maxCards && i < languageCaptions.length; i++)
+	{
+		if (i%maxCardsPerRow == 0) //new row
+		{
+			this.$.CardRows.createComponent({name: "CardRow"+i, layoutKind: "HFlexLayout", align: "center", components: []}); 
+			currentRow = this.$.CardRows.children[rowCounter];
+			this.rowCounter++; 
+			
+		}
+		//for each caption, create a card button in the left & right language
+		var languageCaption = languageCaptions[i]; 
+		var leftCaption = languageCaption.translations.find(this.languageLeft).word; 
+		var rightCaption = languageCaption.translations.find(this.languageRight).word; //todo: null check
+		var image = languageCaption.image; 
+		currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "1", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image}); 
+		currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "2", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image}); 
+	}
+	this.$.CardRows.render(); 
+  }
 });
