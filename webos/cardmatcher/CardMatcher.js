@@ -11,39 +11,6 @@ Array.prototype.find = function (itemName){
 };
 
 
-// Card object
-enyo.kind({
-  name: "MJCards.App",
-  kind: enyo.Control,
-  
-  
-  
-  name: "MJCards.Card",
-  kind: "Control",
-  hidden: {
-      color: "red",
-      bgColor: "black"
-  },
-  content: "Hi",
-  image: "images/soccerball.png",
-  className: "box_round box_shadow box_gradient",
-  create: function() {
-      this.inherited(arguments);
-  },
-  onclick: "flipCard"
-});
-
-//trying to use the kind to put into the component array, not working
-enyo.kind({
-name: "MJCards.Button", 
-kind: enyo.Button,
-onclick: "flipCard", 
-id:1,
-className: "box_round box_shadow box_gradient",
-toLocaleString : function() { 
-	var translation = langcuageCaptions.find(this.id); 
-}
-}); 
 
 
 //language data - todo: move to a file
@@ -92,54 +59,6 @@ languageCaptions.push ({name:1, image:"images/soccerball.png", translations:[{na
 languageCaptions.push ({name:2, image:"images/egg.jpg", translations:[{name: "en", word: "egg"}, {name:"es", word: "huevo"}, {name:"fr", word:"œuf"}]}); 
 
 
-/* CARD DATA */
-
-var Card = function (name, image) { 
-	this.name = name; 
-	this.image = image; 
-} ;
-//cards data - todo: load from json
-baseCards = [];
-baseCards.push (new Card(1, "images/soccerball.png")); 
-baseCards.push (new Card(2, "images/egg.jpg")); 
-
-//todo: bring in the enyo.kind here
-var CardButton = function(card, languageCode){
-	var self = this; 
-
-	this.kind = enyo.Button; 
-	this.name = card.name; 
-	this.image = card.image; 
-	this.flipped = false; 
-	this.onclick = "flipCard"; 
-	this.className = "box_round box_shadow box_gradient";
-	this.caption = ""; 
-	this.languageCode = languageCode;  //todo: optional? 
-	this.init = function(languageCode) { 	
-		//todo: namespace the globals
-		var translation = languageCaptions.find(card.name); //name is really an id, but id is already used. the prototype array find uses name
-		var myCaption = translation.languageTranslations.find(languageCode); 
-		self.caption = myCaption.word; 
-	}
-}
-
-cardButtons = [];
-for (var i=0; i < baseCards.length; i++)  //todo: for each language, create a copy of each base card - randomize position (array.shuffle)
-{
-	var cardButton1 = new CardButton(baseCards[i], MJCards.languageLeft); 
-	var cardButton2 = new CardButton(baseCards[i], MJCards.languageRight); 
-	cardButtons.push(cardButton1); 
-	cardButtons.push(cardButton2); 
-}
-
-//todo: remove
-myCards=[];
-myCards.push( {kind:enyo.Button, name: 1, caption:" ", flipped: false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:"images/soccerball.png"});
-myCards.push( {kind:enyo.Button, name: 2, caption:" ", flipped: false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:"images/egg.jpg"});
-
-/* END CARD DATA */
-
-
 //trying to use the kind to put into the component array, not working
 enyo.kind({
 	name: "MJCards.Button", 
@@ -172,6 +91,7 @@ enyo.kind({
 		},
 		{name: "leftLanguageCaption", content: "English", className:"language-label"}, //todo configurable defaults
 		{name: "rightLanguageCaption", content: "Spanish", className:"language-label"},
+		{name: "resultMessage", content: "Pick a card", className:"message-label"},
 		//cards  
 		{kind: "Control", name:"CardRows", layoutKind: "HFlexLayout",
 		  style: "width: 500px; height: 200px;",
@@ -206,16 +126,27 @@ enyo.kind({
 
 	this.init(); 
   },
-  flipCard: function(inSender) { 
+  flipCard: function(inSender, e) { 
+  //todo: base this on # of cards
 	if (inSender.flipped)
 	{
 		inSender.addStyles("background:url");
 		inSender.content = " "; 
+		inSender.owner.$.resultMessage.setContent("Pick another card"); 
 	}
 	else
 	{
-		//flipping card to show, see if myMatch is already showing
-		
+		//flipping card to show, see if myMatch is already showing  - map=foreach
+		var matchShowing = this.$.CardRows.children.map(function(row) {
+			row.children.map(function(card) { 
+				if (card.name === inSender.myMatch) { 
+					if (card.flipped) {
+						inSender.owner.$.resultMessage.setContent("Matched! Great job!"); 
+						return; 
+					}
+				}
+			})
+		})
 		inSender.addStyles("background:url(" + inSender.image + "); background-position:center top fixed; background-repeat: no-repeat;");
 		inSender.content = inSender.captionText; 
 	}
@@ -224,6 +155,8 @@ enyo.kind({
   } ,
   init : function ()
   {
+  //TODO: remove the duplicate issue - destroy? 
+  //TODO: color the languages & the caption that matches (left =blue, right=red), show the languages in each language (english ingles)
 	//create cards - TODO: math to put a number of cards per row
 	this.$.CardRows.children = []; //clear the rows
 	var maxCardsPerRow = 5; 
