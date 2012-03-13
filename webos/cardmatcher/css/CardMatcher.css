@@ -21,3 +21,8 @@
   background-image: -webkit-gradient(linear, left top, left bottom, from(#4FF), to(#FCF)); /* Saf4+, Chrome */
   background-image: -webkit-linear-gradient(top, #4FF, #FCF); /* Chrome 10+, Saf5.1+, iOS 5+ */
 }
+
+.language-label {
+	display: inline; 
+	margin-left: 10px; 
+}
