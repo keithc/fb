@@ -105,6 +105,8 @@ enyo.kind({
 		}
 	]}
   ],
+  cardsShowing: 0,
+  firstCardShowing :"",
   languageLeft: "en",
   languageRight: "es",
   languageClick: function(inSender, e) { 
@@ -126,32 +128,84 @@ enyo.kind({
 
 	this.init(); 
   },
+  showCard: function(card) { 
+  //console.log("show" + card.name + " -it was " + card.flipped); 
+  		card.addStyles("background:url(" + card.image + "); background-position:center top fixed; background-repeat: no-repeat;");
+		card.content = card.captionText;
+		card.flipped = true; 
+  },
+  hideCard: function(card) { 
+	//console.log("hiding " + card.name + " - it was : " + card.flipped) ;
+  		card.addStyles("background:url");
+		card.content = " "; 
+		card.flipped = false; 
+		card.owner.$.resultMessage.setContent("Pick another card");
+  },
   flipCard: function(inSender, e) { 
-  //todo: base this on # of cards
-	if (inSender.flipped)
+  console.log("beginning flip : " + this.cardsShowing); 
+	//handle UI
+	if (inSender.flipped)  //card was already showing, flip to hide it
 	{
-		inSender.addStyles("background:url");
-		inSender.content = " "; 
-		inSender.owner.$.resultMessage.setContent("Pick another card"); 
+		this.hideCard(inSender); 
+		this.cardsShowing--; 	
 	}
-	else
+	else 
 	{
 		//flipping card to show, see if myMatch is already showing  - map=foreach
-		var matchShowing = this.$.CardRows.children.map(function(row) {
-			row.children.map(function(card) { 
-				if (card.name === inSender.myMatch) { 
-					if (card.flipped) {
-						inSender.owner.$.resultMessage.setContent("Matched! Great job!"); 
-						return; 
-					}
-				}
-			})
-		})
-		inSender.addStyles("background:url(" + inSender.image + "); background-position:center top fixed; background-repeat: no-repeat;");
-		inSender.content = inSender.captionText; 
+		//var matchShowing = this.$.CardRows.children.map(function(row) {
+		//	row.children.map(function(card) { 
+		//		if (card.name === inSender.myMatch) { 
+		//			if (card.flipped) {
+		//				inSender.owner.$.resultMessage.setContent("Matched! Great job!"); 
+		//				return; 
+		//			}
+		//		}
+		//	})
+		//})
+		//inSender.addStyles("background:url(" + inSender.image + "); background-position:center top fixed; background-repeat: no-repeat;");
+		//inSender.content = inSender.captionText; 
+		this.showCard(inSender); 
+		this.cardsShowing++; 
 	}
+	// runs for show or hide
 	inSender.render();
-	inSender.flipped=!inSender.flipped; 
+	//inSender.flipped=!inSender.flipped; 
+	//handle vars storing state
+	if (this.cardsShowing === 0) //no cards showing now, clear the state holder
+	{
+		this.firstCardShowing = "";
+	}
+	else if (this.cardsShowing === 1)
+	{
+			this.firstCardShowing = inSender; 
+	}
+	else if (this.cardsShowing === 2)
+	{
+		//check for a match
+		if (inSender.myMatch === this.firstCardShowing.name) 
+		{
+			inSender.owner.$.resultMessage.setContent("Matched! Supa job!");
+			this.firstCardShowing=""; 
+			this.cardsShowing =0; 
+			//mark cards with a green border
+		}
+		else
+		{
+			var self = this; 
+			//if no match, hide the cards after a delay
+			window.setTimeout(function() { 
+				self.hideCard(self.firstCardShowing); 
+				self.hideCard(inSender); 
+				self.cardsShowing =0; 
+				self.firstCardShowing = ""; 
+				},
+				5000
+			);
+		}	
+		
+		
+	}
+	
   } ,
   init : function ()
   {
@@ -184,8 +238,8 @@ enyo.kind({
 			var leftCaption = languageCaption.translations.find(this.languageLeft).word; 
 			var rightCaption = languageCaption.translations.find(this.languageRight).word; //todo: null check
 			var image = languageCaption.image; 	
-			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image}); 
-			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image}); 
+			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, matched:false }); 
+			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, matched:false }); 
 		}
 	}
 	this.$.CardRows.render(); 
