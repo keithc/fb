@@ -1,0 +1,29 @@
+card is clicked
+	if cards clicked = 0
+		flip this card
+		put this card in the 'showing card' 
+		incr counter
+		
+	if cards clicked = 1 
+		was the card clicked the one that was showing? 
+			if yes, flip it back, remove it from 'showing card'
+			if no, check  'myMatch' for a match against 'showing card'
+		
+	if cards clicked = 2
+		hide the previously showing cards
+		show this card
+		put this card in 'showing card' 
+		
+		
+
+card is clicked
+flip card up or down, incr or decr counter
+	if cards clicked now = 0
+		clear showing card
+	
+	if cards clicked now = 1
+		put this card in the showing card
+	
+	if cards clicked now = 2
+		check insender vs showing card for match
+		delay, then hide cards, decr counter to zero, clear showing card

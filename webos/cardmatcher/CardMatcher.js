@@ -107,6 +107,7 @@ enyo.kind({
   ],
   cardsShowing: 0,
   firstCardShowing :"",
+  flippingEnabled: true,
   languageLeft: "en",
   languageRight: "es",
   languageClick: function(inSender, e) { 
@@ -142,14 +143,19 @@ enyo.kind({
 		card.owner.$.resultMessage.setContent("Pick another card");
   },
   flipCard: function(inSender, e) { 
-  console.log("beginning flip : " + this.cardsShowing); 
+	//cards still showing, can't click yet - OR - this card was already matched
+	if (!this.flippingEnabled || inSender.matched)
+	{
+		return false;
+	}
+
 	//handle UI
 	if (inSender.flipped)  //card was already showing, flip to hide it
 	{
 		this.hideCard(inSender); 
 		this.cardsShowing--; 	
 	}
-	else 
+	else //card not showing, flip to show it
 	{
 		//flipping card to show, see if myMatch is already showing  - map=foreach
 		//var matchShowing = this.$.CardRows.children.map(function(row) {
@@ -170,7 +176,7 @@ enyo.kind({
 	// runs for show or hide
 	inSender.render();
 	//inSender.flipped=!inSender.flipped; 
-	//handle vars storing state
+	//check for matches if necessary
 	if (this.cardsShowing === 0) //no cards showing now, clear the state holder
 	{
 		this.firstCardShowing = "";
@@ -179,12 +185,14 @@ enyo.kind({
 	{
 			this.firstCardShowing = inSender; 
 	}
-	else if (this.cardsShowing === 2)
+	else if (this.cardsShowing === 2)  //check for matches
 	{
 		//check for a match
 		if (inSender.myMatch === this.firstCardShowing.name) 
 		{
 			inSender.owner.$.resultMessage.setContent("Matched! Supa job!");
+			inSender.matched = true; 
+			this.firstCardShowing.matched = true; //mark the cards true so they can't be clicked again.
 			this.firstCardShowing=""; 
 			this.cardsShowing =0; 
 			//mark cards with a green border
@@ -192,14 +200,16 @@ enyo.kind({
 		else
 		{
 			var self = this; 
+			self.flippingEnabled = false; 
 			//if no match, hide the cards after a delay
 			window.setTimeout(function() { 
 				self.hideCard(self.firstCardShowing); 
 				self.hideCard(inSender); 
 				self.cardsShowing =0; 
 				self.firstCardShowing = ""; 
+				self.flippingEnabled = true; 
 				},
-				5000
+				3000
 			);
 		}	
 		
