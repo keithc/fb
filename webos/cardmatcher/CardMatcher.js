@@ -1,4 +1,4 @@
-
+//todo: randomize card positions, pick a number of cards from a larger set but make sure they go in pairs, load cards by default, configuration settings, card flip animation
 
 Array.prototype.find = function (itemName){
 	for (index in this) {  
@@ -10,7 +10,16 @@ Array.prototype.find = function (itemName){
 	return null; 
 };
 
-
+Array.prototype.shuffle = function() {
+	var len = this.length; 
+	var i = len; 
+	while (i--) { 
+		var p = parseInt(Math.random()*len); 
+		var t = this[i];
+		this[i] = this[p];  //swap p & i items
+		this[p] = t; 
+	}
+};
 
 
 //language data - todo: move to a file
@@ -57,6 +66,9 @@ var LanguageCaption = function (name, languageTranslations) {
 languageCaptions = [];
 languageCaptions.push ({name:1, image:"images/soccerball.png", translations:[{name: "en", word: "ball"}, {name:"es", word: "pelota"}, {name:"fr", word:"balle"}]}); 
 languageCaptions.push ({name:2, image:"images/egg.jpg", translations:[{name: "en", word: "egg"}, {name:"es", word: "huevo"}, {name:"fr", word:"œuf"}]}); 
+languageCaptions.push ({name:2, color:"#00F", fontColor:"#FFF", translations:[{name: "en", word: "blue"}, {name:"es", word: "azul"}, {name:"fr", word:"bleu"}]}); 
+languageCaptions.push ({name:2, color:"#0F0", translations:[{name: "en", word: "green"}, {name:"es", word: "verde"}, {name:"fr", word:"vert"}]}); 
+languageCaptions.push ({name:2, color:"#F00", translations:[{name: "en", word: "red"}, {name:"es", word: "rojo"}, {name:"fr", word:"rouge"}]}); 
 
 
 //trying to use the kind to put into the component array, not working
@@ -94,7 +106,7 @@ enyo.kind({
 		{name: "resultMessage", content: "Pick a card", className:"message-label"},
 		//cards  
 		{kind: "Control", name:"CardRows", layoutKind: "HFlexLayout",
-		  style: "width: 500px; height: 200px;",
+		  //style: "width: 600px; height: auto;",
 		  pack: "center", align: "start", 
 		  components: [
 				
@@ -131,16 +143,30 @@ enyo.kind({
   },
   showCard: function(card) { 
   //console.log("show" + card.name + " -it was " + card.flipped); 
-  		card.addStyles("background:url(" + card.image + "); background-position:center top fixed; background-repeat: no-repeat;");
+		//if card has an image, use that - else use the color
+		if (card.image) 
+		{
+			card.addStyles("background:url(" + card.image + ")"); 
+		}
+		else
+		{
+			card.addStyles("background:" + card.color); 
+		}		
+		card.addStyles("background-repeat: no-repeat;");
+		card.addStyles("background-position:center bottom"); 
+		card.addStyles("color: " + card.fontColor); 
 		card.content = card.captionText;
 		card.flipped = true; 
+		card.render(); 
   },
   hideCard: function(card) { 
 	//console.log("hiding " + card.name + " - it was : " + card.flipped) ;
   		card.addStyles("background:url");
 		card.content = " "; 
+		card.caption = " "; 
 		card.flipped = false; 
-		card.owner.$.resultMessage.setContent("Pick another card");
+		card.render(); 
+		//card.owner.$.resultMessage.setContent("Pick another card");
   },
   flipCard: function(inSender, e) { 
 	//cards still showing, can't click yet - OR - this card was already matched
@@ -174,12 +200,13 @@ enyo.kind({
 		this.cardsShowing++; 
 	}
 	// runs for show or hide
-	inSender.render();
+	//inSender.render();
 	//inSender.flipped=!inSender.flipped; 
 	//check for matches if necessary
 	if (this.cardsShowing === 0) //no cards showing now, clear the state holder
 	{
 		this.firstCardShowing = "";
+		inSender.owner.$.resultMessage.setContent("");
 	}
 	else if (this.cardsShowing === 1)
 	{
@@ -201,6 +228,7 @@ enyo.kind({
 		{
 			var self = this; 
 			self.flippingEnabled = false; 
+			inSender.owner.$.resultMessage.setContent("Not a match, try again!");
 			//if no match, hide the cards after a delay
 			window.setTimeout(function() { 
 				self.hideCard(self.firstCardShowing); 
@@ -208,35 +236,47 @@ enyo.kind({
 				self.cardsShowing =0; 
 				self.firstCardShowing = ""; 
 				self.flippingEnabled = true; 
+				inSender.owner.$.resultMessage.setContent("-");
 				},
-				3000
+				2000
 			);
 		}	
-		
-		
 	}
-	
   } ,
   init : function ()
   {
+  
+	function getRandomNumberArray(max) { 
+		var rndArray = [];
+		for (var i=0; i<max; i++)
+		{
+			rndArray[i]=i; 
+		}
+		rndArray.shuffle(); 	
+		return rndArray; 
+	}; 
   //TODO: remove the duplicate issue - destroy? 
   //TODO: color the languages & the caption that matches (left =blue, right=red), show the languages in each language (english ingles)
 	//create cards - TODO: math to put a number of cards per row
+	//TODO - remove row logic, just use css? display block on the card row, float left on the cards
 	this.$.CardRows.children = []; //clear the rows
-	var maxCardsPerRow = 5; 
+	//var maxCardsPerRow = 5; 
 	var maxCards = 10; //todo: smarter math/config - 10 will generate 20 cards, pick at random from the data
-	var rowCounter =0; 
-	var currentRow =null; 
+	//var rowCounter =0; 
+	//var currentRow =null; 
+	//var randomIndexArray = getRandomNumberArray(maxCards<=languageCaptions.length ? maxCards : languageCaptions.length); 
+	var finalCardArray= []; //putting them in an array so they can be shuffled. 
+	this.$.CardRows.createComponent({name: "CardRow"+i, layoutKind: "HFlexLayout",  style: "display:block", align: "center", components: []}); 
 	
 	for (var i = 0; i < maxCards && i < languageCaptions.length; i++)
 	{
-		if (i%maxCardsPerRow == 0) //new row
-		{
-			this.$.CardRows.createComponent({name: "CardRow"+i, layoutKind: "HFlexLayout", align: "center", components: []}); 
-			currentRow = this.$.CardRows.children[rowCounter];
-			this.rowCounter++; 
+	//	if (i%maxCardsPerRow == 0) //new row
+	//	{
+			//this.$.CardRows.createComponent({name: "CardRow"+i, layoutKind: "HFlexLayout",  style: "display:block", align: "center", components: []}); 
+	//		currentRow = this.$.CardRows.children[rowCounter];
+	//		this.rowCounter++; 
 			
-		}
+	//	}
 		//for each caption, create a card button in the left & right language
 		var languageCaption = languageCaptions[i]; 
 		//null checks
@@ -244,14 +284,25 @@ enyo.kind({
 		var rightTranslation = languageCaption.translations.find(this.languageRight);
 		
 		if ((leftTranslation) && (rightTranslation))
-		{
+		{			
 			var leftCaption = languageCaption.translations.find(this.languageLeft).word; 
 			var rightCaption = languageCaption.translations.find(this.languageRight).word; //todo: null check
-			var image = languageCaption.image; 	
-			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, matched:false }); 
-			currentRow.createComponent({kind:enyo.Button, owner:this, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, matched:false }); 
+			var image = languageCaption.image, color= languageCaption.color; 
+			var fontColor = languageCaption.fontColor ? languageCaption.fontColor : "#000"; 
+			
+			//left language button 
+			finalCardArray.push({kind:enyo.Button, owner:this, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
+			//right language button
+			finalCardArray.push({kind:enyo.Button, owner:this, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
 		}
 	}
+	finalCardArray.shuffle(); 
+	
+	for (var i =0; i<finalCardArray.length; i++)
+	{
+		this.$.CardRows.children[0].createComponent(finalCardArray[i]); //was currentRow
+	}
+	
 	this.$.CardRows.render(); 
   }
 });
