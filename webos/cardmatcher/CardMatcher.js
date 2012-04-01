@@ -64,11 +64,15 @@ var LanguageCaption = function (name, languageTranslations) {
 } 
 
 languageCaptions = [];
-languageCaptions.push ({name:1, image:"images/soccerball.png", translations:[{name: "en", word: "ball"}, {name:"es", word: "pelota"}, {name:"fr", word:"balle"}]}); 
-languageCaptions.push ({name:2, image:"images/egg.jpg", translations:[{name: "en", word: "egg"}, {name:"es", word: "huevo"}, {name:"fr", word:"œuf"}]}); 
+//languageCaptions.push ({name:1, image:"images/soccerball.png", translations:[{name: "en", word: "ball"}, {name:"es", word: "pelota"}, {name:"fr", word:"balle"}]}); 
+//languageCaptions.push ({name:2, image:"images/egg.jpg", translations:[{name: "en", word: "egg"}, {name:"es", word: "huevo"}, {name:"fr", word:"œuf"}]}); 
 languageCaptions.push ({name:2, color:"#00F", fontColor:"#FFF", translations:[{name: "en", word: "blue"}, {name:"es", word: "azul"}, {name:"fr", word:"bleu"}]}); 
 languageCaptions.push ({name:2, color:"#0F0", translations:[{name: "en", word: "green"}, {name:"es", word: "verde"}, {name:"fr", word:"vert"}]}); 
 languageCaptions.push ({name:2, color:"#F00", translations:[{name: "en", word: "red"}, {name:"es", word: "rojo"}, {name:"fr", word:"rouge"}]}); 
+languageCaptions.push ({name:2, color:"#FFFF00", translations:[{name: "en", word: "yellow"}, {name:"es", word: "amarillo"}, {name:"fr", word:"jaune"}]}); 
+languageCaptions.push ({name:2, color:"#FF6600", translations:[{name: "en", word: "orange"}, {name:"es", word: "naranja"}, {name:"fr", word:"orange"}]}); 
+languageCaptions.push ({name:2, color:"#6600FF", translations:[{name: "en", word: "purple"}, {name:"es", word: "morado"}, {name:"fr", word:"pourpre"}]}); 
+languageCaptions.push ({name:2, color:"#663300", translations:[{name: "en", word: "brown"}, {name:"es", word: "marron"}, {name:"fr", word:"brun"}]}); 
 
 
 //trying to use the kind to put into the component array, not working
@@ -155,7 +159,7 @@ enyo.kind({
 		card.addStyles("background-repeat: no-repeat;");
 		card.addStyles("background-position:center bottom"); 
 		card.addStyles("color: " + card.fontColor); 
-		card.content = card.captionText;
+		card.content = card.captionText + "<BR><BR>(" + card.language + ")"; 
 		card.flipped = true; 
 		card.render(); 
   },
@@ -219,10 +223,11 @@ enyo.kind({
 		{
 			inSender.owner.$.resultMessage.setContent("Matched! Supa job!");
 			inSender.matched = true; 
+			inSender.addClass("matchedCard"); //maybe a checkmark in the body? 
+			this.firstCardShowing.addClass("matchedCard"); 
 			this.firstCardShowing.matched = true; //mark the cards true so they can't be clicked again.
 			this.firstCardShowing=""; 
 			this.cardsShowing =0; 
-			//mark cards with a green border
 		}
 		else
 		{
@@ -291,9 +296,9 @@ enyo.kind({
 			var fontColor = languageCaption.fontColor ? languageCaption.fontColor : "#000"; 
 			
 			//left language button 
-			finalCardArray.push({kind:enyo.Button, owner:this, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
+			finalCardArray.push({kind:enyo.Button, owner:this, language:this.$.leftLanguageCaption.content, name:leftCaption + "1", myMatch:leftCaption + "2", caption:" ", captionText:leftCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
 			//right language button
-			finalCardArray.push({kind:enyo.Button, owner:this, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
+			finalCardArray.push({kind:enyo.Button, owner:this, language:this.$.rightLanguageCaption.content, name:leftCaption + "2", myMatch:leftCaption + "1", caption:" ", captionText:rightCaption, flipped:false, onclick:"flipCard", className: "box_round box_shadow box_gradient", image:image, color:color, fontColor:fontColor, matched:false });
 		}
 	}
 	finalCardArray.shuffle(); 

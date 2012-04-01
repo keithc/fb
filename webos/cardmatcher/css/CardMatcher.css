@@ -23,6 +23,11 @@
   background-image: -webkit-linear-gradient(top, #4FF, #FCF); /* Chrome 10+, Saf5.1+, iOS 5+ */
 }
 
+.matchedCard{ 
+	font-style: italic; 
+	font-weight: bold; 
+}
+
 .language-label {
 	display: inline; 
 	margin-left: 10px; 
