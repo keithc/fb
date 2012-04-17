@@ -44,9 +44,12 @@
 				font-size:11px; 
 			}
 
-			div.textContainer { 
+			div#textContainer { 
 				left:250px; 
 				float:right; 
+			}
+			div.AddContainer { 
+				display:none; 
 			}
 		</style> 
 	</head>
@@ -62,7 +65,7 @@
 
 	<canvas id="canvas" width="300", height="300"></canvas> 
 	
-	<div class="textContainer">
+	<div id="textContainer">
 	<!-- world data view table --> 
 	<div id="worldViewContainer">
 		<!--<ul><li data-bind="text:ko.toJSON(timer)"></li><li><a href="#" data-bind="click:toggleTimer">Start/Stop</a></li></ul>-->
@@ -86,7 +89,9 @@
 	</div>
 	
 	<div id="statusContainer"></div> 
+	
 	<script type="text/javascript">	
+	//*** *** Game Loop *** *** 
 	function gameTimer() { 
 		var self = this; 
 		//Game runner
@@ -177,8 +182,6 @@
 		
 		//Behaviors
 		self.goToScreen = function (menuItem) { location.hash = menuItem; }; 
-
-		
 		
 	}
 	var wvmodel = new WorldViewModel;
@@ -209,9 +212,9 @@
 	};
 	</script> 	
 	
-	<!-- **** AirportS **** --> 
+	<!-- **** Airports **** --> 
 	<!-- Airports view --> 
-	<div id="AirportsViewContainer">
+	<div id="AirportsViewContainer" class="hud">
 		<h2>Airports(<span data-bind="text: airports().length"></span>)</h2>
 		<table border=1 data-bind="visible: airports().length > 0">
 			<thead><tr>
@@ -230,22 +233,24 @@
 				</tr>    
 			</tbody>
 		</table>
-		<h2>Enter a New Airport</h2>
-		<form data-bind="submit:addAirport">
-			<table>
-				<td><input data-bind="value: newName" placeholder="Airport Name" /></td>
-				<td><input data-bind="value: newGates" placeholder="Airport Gates" /></td><!--select-->
-				<td><input data-bind="value: newStartingPassengers" placeholder="Passengers to start with" /></td><!--select/consPlane-->
-				<td><input data-bind="value: newpassengerGainRate" placeholder="Passengers Gained/sec" /></td><!--select/consPlane-->
-				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
-				<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
-				<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
-				<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
-			</table>
-			<button type="submit">Add Airport</button>
-		</form>
-		<button data-bind="click: saveAirports(), enable: airports().length > 0">Save To Local Storage</button>
-		
+		<span><a href="#" data-ui-type="showhide"><span id="toggletext">Show</span> New Airport Form</a></span> 
+		<div class="AddContainer">
+			<h2>Enter a New Airport</h2>
+			<form data-bind="submit:addAirport">
+				<table>
+					<td><input data-bind="value: newName" placeholder="Airport Name" /></td>
+					<td><input data-bind="value: newGates" placeholder="Airport Gates" /></td><!--select-->
+					<td><input data-bind="value: newStartingPassengers" placeholder="Passengers to start with" /></td><!--select/consPlane-->
+					<td><input data-bind="value: newpassengerGainRate" placeholder="Passengers Gained/sec" /></td><!--select/consPlane-->
+					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+					<td><input data-bind="value: newXLoc" placeholder="X location"/></td><!--validate-->
+					<td><input data-bind="value: newYLoc" placeholder="Y location"/></td><!--validate-->
+					<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
+				</table>
+				<button type="submit">Add Airport</button>
+			</form>
+			<button data-bind="click: saveAirports(), enable: airports().length > 0">Save To Local Storage</button>
+		</div>
 	</div>
 	
 	
@@ -369,7 +374,7 @@
 	<!-- **** PlaneS **** --> 
 	<hr/>
 	<!-- Planes view --> 
-	<div id="PlanesViewContainer">
+	<div id="PlanesViewContainer" class="hud">
 		<h2>Planes (<span data-bind="text: planes().length"></span>)</h2>
 		<table border=1 data-bind="visible: planes().length > 0">
 			<thead><tr>
@@ -388,19 +393,21 @@
 				</tr>    
 			</tbody>
 		</table>
-		<h2>Enter a New Plane</h2>
-		<form data-bind="submit:addPlane">
-			<table>
-				<td><input data-bind="value: newName" placeholder="Plane Name" /></td>
-				<td><input data-bind="value: newModel" placeholder="Plane Model" /></td><!--select-->
-				<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
-				<td><input data-bind="value: newStartAirport" placeholder="Start Airport"/></td><!--select-->
-				<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
-			</table>
-			<button type="submit">Add Plane</button>
-		</form>
-		<button data-bind="click: savePlanes(), enable: planes().length > 0">Save To Local Storage</button>
-		
+		<span><a href="#" data-ui-type="showhide"><span id="toggletext">Show</span> New Plane Form</a></span> 
+		<div class="AddContainer">
+			<h2>Enter a New Plane</h2>
+			<form data-bind="submit:addPlane">
+				<table>
+					<td><input data-bind="value: newName" placeholder="Plane Name" /></td>
+					<td><input data-bind="value: newModel" placeholder="Plane Model" /></td><!--select-->
+					<!--<td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>-->
+					<td><input data-bind="value: newStartAirport" placeholder="Start Airport"/></td><!--select-->
+					<!-- enable = funds for this Plane < my funds   enable: planes().length < 5--> 
+				</table>
+				<button type="submit">Add Plane</button>
+			</form>
+			<button data-bind="click: savePlanes(), enable: planes().length > 0">Save To Local Storage</button>
+		</div>
 	</div>
 	<!-- Planes objects & viewmodel --> 
 	<script type="text/javascript">
@@ -655,5 +662,17 @@
 	initCanvas(); 
 	drawWorldObjects();  
 	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {  
+			$("#textContainer").delegate("a[data-ui-type='showhide']","click", function(e) { 
+				var $this = $(this); 
+				var $toggleDiv = $($this.parent().next()); 
+				var $toggleSpan= $($this.children("#toggletext"));
+				
+				$toggleSpan.text($toggleSpan.text()==="Show" ? "Hide" : "Show" ); 		
+				$toggleDiv.toggle()
+			} ) ;
+		});
+	</script> 
 </body>
 </html>
